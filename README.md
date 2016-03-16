@@ -30,7 +30,7 @@ depending on different parameters such as vehicle type, traffic incidences, occu
 
 A video of the functionality offered can be found [here](https://drive.google.com/file/d/0ByPJ3uXnTexAM2t5SGNpUEFtblk/view).
 
-# How to run it
+## How to run it
 
 The application runs on top of the
 [HERE Maps Premium SDK](https://developer.here.com/mobile-sdks/documentation/android-hybrid-plus/topics/overview.html) for Android.
@@ -40,7 +40,7 @@ So in order to run it you would need to apply for an evaluation copy of such SDK
 For your convenience an example of manifest.xml file is provided, so that you will only
 have to add your credentials at the corresponding `meta-data` sections. 
 
-# How to contribute
+## How to contribute
 
 First of all, please take into account that the repository contains a snapshot ready to work with [Android Studio](http://developer.android.com/intl/es/tools/studio/index.html). 
 
