@@ -47,3 +47,4 @@ First of all, please take into account that the repository contains a snapshot r
 Once you have a patch please make a pull request.
 
 [license-image]: https://img.shields.io/badge/license-GPL-blue.svg
+[license-url]: LICENSE
