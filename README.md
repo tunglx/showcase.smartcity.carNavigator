@@ -1,5 +1,42 @@
-# FIWARE-HERE Car Navigator Prototype
+# FIWARE-Enabled Car Navigator for smart cities
 
-This project contains a car navigator, Android client application which connects HERE Maps Technology with OASC cities implementing FIWARE-NGSI.
+[license-image]: https://img.shields.io/badge/license-GPL-blue.svg
 
-This prototype has been presented during the SCEWC 2015 and will be presented as well during MWC 2016. 
+## Introduction
+
+This repository contains code which implements an Android-based car navigator for smart cities . 
+The application connects [HERE Maps](https://maps.here.com/)
+technology with [OASC cities](http://oascities.org/) which expose real time data through the FIWARE-NGSI APIs.
+
+This pilot has been presented at the SCEWC 2015 and MWC 2016.
+
+## Showcase description
+
+This showcase demonstrates how car navigation can be enriched by means of real time context data
+from smart cities.  smarter car navigator prototype, integrating both, real-time context data coming from several cities
+(Spain, Portugal and The Netherlands) and HERE maps is shown.
+
+Two different use cases are demonstrated: 
+
+* Car navigation experience on route is enriched by providing real time environmental
+information about the city and its facilities. Drivers know real time ambient data and can be advised,
+for instance of high pollution levels, influencing their driving behavior. 
+
+* Drivers are guided to a suitable parking spot (indoors or outdoors),
+depending on different parameters such as vehicle type, traffic incidences, occupancy levels of nearby parkings and the like. 
+
+# How to run it
+
+The application runs on top of the
+[HERE Maps Premium SDK](https://developer.here.com/mobile-sdks/documentation/android-hybrid-plus/topics/overview.html) for Android.
+So in order to run it you would need to apply for an evaluation copy of such SDK and register an application under the namespace
+`fiware.smartcity`. Then you will need to configure the corresponding credentials in the `AndroidManifest.xml`file.
+
+For your convenience an example of manifest.xml file is provided, so that you will only
+have to add your credentials at the corresponding `meta-data` sections. 
+
+# How to contribute
+
+First of all, please take into account that the repository contains a snapshot ready to work with Android Studio. 
+
+Once you have a patch please make a pull request.
