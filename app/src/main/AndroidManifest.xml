@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fiware.smartcity" >
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault">
+
+        <activity
+            android:name="fiware.smartcity.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.here.android.mpa.service.MapService"
+            android:exported="true"
+            android:label="HereMapService"
+            android:process="global.Here.Map.Service.v2" >
+            <intent-filter>
+                <action android:name="com.here.android.mpa.service.MapService" >
+                </action>
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.here.android.maps.appid"
+            android:value="faqhSeEexrsqMPMVCjj7" />
+        <meta-data
+            android:name="com.here.android.maps.apptoken"
+            android:value="qMR9BDO48F9W-TA8wYlJOw" />
+        <meta-data
+            android:name="com.here.android.maps.license.key"
+            android:value="hycubiaTCS/GB3DLzZK+ZSLeCegUlLtpNf1J1//ddP7+iOLnLy7KUjG2PYQD1U1iyUVJJxmPwUNox7uPHFOWhbik3fkaZUWRDU1pw+FK+LwBBwFwg96YjJOAphZwzCjt6F+X/bhq3HCM5/qvBJ0TemsIjXVHDCTVsq20pU/h6lR+szkQG+SxS2WvGuG3c91TjoAgzHIkW6/I7ji8Z8G8VK1OUNQs35m8TYH0NfgwIwKctbPqvbnDJyMZCPpQsrTemREJ1/R4ng3gUiK06Do5yznWvHlewsz8C48gS2NqYbvhwWyI+dFG+R6jUh2ZAndMC+ybB27A0zOsWxaAk9kfGSj/4SwGPuM1pyJYw7RZXy3oS7eeSwhOmZJyXB3dFokXVyXcBaMO0JuwqNQV+HgPuminuI6vdEE8tD0vnLpZYxEL9XnAQu0BOSGaaUVYZHQ9FdvHju8BPNmMf0PCQ6FPC8mugvKINi21pmqBcND57osM7mxoZOMUUAhjibLPGpFA8EcuWsi7r+2PWsON1zt9Wm7bdY7xD2JNXhQRP7U7Rt7X0LPBbmn4iJift0E0h8tocHbLr/uW/2++CcEhqU5tEG9WYgVvclmWFjRzVtFffKl1HtOq0hx9WY4WYdSY5hsKev4IV3dpFQSnscsl7pkYFYjqNBxyUYetdJVb+B5q4Fw=" />
+
+    </application>
+
+</manifest>
