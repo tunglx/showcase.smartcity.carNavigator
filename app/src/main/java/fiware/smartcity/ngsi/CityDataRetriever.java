@@ -306,12 +306,15 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
     private String createRequestURL(CityDataRequest req) {
         String geometry = req.geometry;
         if(geometry == null) {
-            geometry = "Circle";
+            geometry = "point";
         }
 
-        String radiusStr = "";
+        String geoRelStr;
         if(req.radius != -1) {
-            radiusStr = "&radius=" + req.radius;
+            geoRelStr = "&georel=near;maxDistance:" + req.radius;
+        }
+        else {
+            geoRelStr = "&georel=coveredBy";
         }
 
         String coords = "";
@@ -328,7 +331,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         }
 
         return SERVICE_URL + "?" + "coords=" + coords
-                + radiusStr + "&type=" + getTypes(req.types) + "&geometry=" + geometry;
+                + geoRelStr + "&type=" + getTypes(req.types) + "&geometry=" + geometry;
     }
 
 
