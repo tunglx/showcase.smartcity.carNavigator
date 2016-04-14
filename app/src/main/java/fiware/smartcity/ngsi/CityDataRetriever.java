@@ -347,8 +347,14 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             coords = coords.substring(0,coords.length() - 1);
         }
 
-        return SERVICE_URL + "?" + "coords=" + coords
+        String out = SERVICE_URL + "?" + "coords=" + coords
                 + geoRelStr + "&type=" + getTypes(req.types) + "&geometry=" + geometry;
+
+        if (req.token != null && req.token.length() > 0) {
+            out += "&token=" + req.token;
+        }
+
+        return out;
     }
 
 

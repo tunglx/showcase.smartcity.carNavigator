@@ -98,4 +98,7 @@ public class Application {
     public static boolean isSpeaking = false;
 
     public static String LAST_CITY_VISITED = "Last_City";
+
+    public static String BF_TOKEN = "bf_token";
+    public static String BF_USER  = "bf_user";
 }

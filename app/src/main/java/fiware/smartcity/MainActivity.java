@@ -2,6 +2,7 @@ package fiware.smartcity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -9,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
@@ -78,6 +80,7 @@ import java.util.TimeZone;
 import fiware.smartcity.ambient.AmbientAreaData;
 import fiware.smartcity.ambient.AmbientAreaRenderListener;
 import fiware.smartcity.ambient.AmbientAreaRenderer;
+import fiware.smartcity.marketplace.MarketActivity;
 import fiware.smartcity.navigation.LocationListener;
 import fiware.smartcity.navigation.LocationTask;
 import fiware.smartcity.navigation.RouteData;
@@ -145,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private ImageView parkingSign;
 
     private RouteActivity routeWizard;
+    private MarketActivity marketplace;
 
     private RouteData routeData;
 
@@ -256,7 +260,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                routeWizard.back();
+                if (routeWizard != null) {
+                    routeWizard.back();
+                } else if (marketplace != null) {
+                    marketplace.back();
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -537,6 +545,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         loopMode = true;
                         getDirections(null);
                     }
+                } else if (item.getItemId() == R.id.action_market) {
+                    showMarketplace();
                 }
                 return true;
             }
@@ -765,6 +775,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         routeWizard.start();
     }
 
+    public void showMarketplace() {
+        popupMenu.getMenu().setGroupVisible(R.id.restartGroup, false);
+        marketplace = new MarketActivity(getApplicationContext());
+
+        marketplace.start();
+    }
+
     public void onRouteReady(RouteData r) {
         double[] newDefaultCoords = RouteActivity.cityCoords.get(r.city);
         DEFAULT_COORDS = new GeoCoordinate(newDefaultCoords[0], newDefaultCoords[1]);
@@ -778,14 +795,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         showRoute();
     }
 
-    public void onRouteCanceled() {
+    private void onMenuBack() {
         ViewGroup rootContainer = (ViewGroup)findViewById(R.id.mainFrame);
 
-        routeWizard = null;
         rootContainer.removeViewAt(2);
 
         InputMethodManager mgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
+    }
+    public void onMarketplaceClosed() {
+        marketplace = null;
+        onMenuBack();
+    }
+
+    public void onRouteCanceled() {
+        routeWizard = null;
+        onMenuBack();
     }
 
     private void clearMap() {
@@ -893,6 +918,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 reqData.types.add(Application.PARKING_TYPE);
             }
             reqData.types.add(Application.PARKING_RESTRICTION_TYPE);
+
+            reqData.token = getUserToken();
 
             Log.d(Application.TAG, "Going to retrieve parking data ...");
             CityDataRetriever retriever = new CityDataRetriever();
@@ -1182,9 +1209,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             List<String> types = Arrays.asList(
                     Application.PARKING_TYPE,
-                    Application.AMBIENT_OBSERVED_TYPE,
-                    Application.GAS_STATION_TYPE,
-                    Application.GARAGE_TYPE
+                    Application.AMBIENT_OBSERVED_TYPE
             );
             executeDataRequest(types, Application.DEFAULT_RADIUS, loc);
         }
@@ -1209,8 +1234,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
+        reqData.token = getUserToken();
+
         pendingSmartCityRequest = true;
         retriever.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, reqData);
+    }
+
+    private String getUserToken() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        return prefs.getString(Application.BF_TOKEN, "");
     }
 
     private void doTerminateSimulation() {
