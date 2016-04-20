@@ -47,6 +47,9 @@ public class Application {
     public static String GAS_STATION_TYPE      = "GasStation";
     public static String GARAGE_TYPE           = "Garage";
 
+    // It is used to mark any data type to be retrieved
+    public static String ANY_ENTITY_TYPE =       "__any__";
+
     public static String PARKING_RESTRICTION_TYPE = "ParkingRestriction";
 
     public static String PARKING_LOT_ZONE_TYPE = "ParkingLotZone";

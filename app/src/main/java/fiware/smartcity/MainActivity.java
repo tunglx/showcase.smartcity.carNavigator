@@ -1209,7 +1209,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             List<String> types = Arrays.asList(
                     Application.PARKING_TYPE,
-                    Application.AMBIENT_OBSERVED_TYPE
+                    Application.AMBIENT_OBSERVED_TYPE,
+                    Application.ANY_ENTITY_TYPE
             );
             executeDataRequest(types, Application.DEFAULT_RADIUS, loc);
         }
