@@ -3,6 +3,7 @@ package fiware.smartcity.marketplace;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -31,37 +32,56 @@ public class MarketActivity {
     private static Activity activity;
 
     private WebView webView;
-    private ProgressBar mPbar;
+    private RelativeLayout mPbar;
 
     private class SpinnerClient extends WebViewClient {
         @Override
         public void onPageFinished(WebView view, String url) {
+            view.setVisibility(View.VISIBLE);
             mPbar.setVisibility(View.GONE);
-            webView.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            mPbar.setVisibility(View.VISIBLE);
         }
     }
 
     private class WebAppTokenInterface {
-        Context mContext;
+        Context context;
 
         WebAppTokenInterface(Context c) {
-            mContext = c;
+            context = c;
+        }
+
+        private SharedPreferences.Editor openPreferences() {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            return prefs.edit();
         }
 
         /**
-         * Save the username and the access token of the user loged in the Marketplace
+         * Save the username and the access token of the user logged in the Marketplace
          * This method is called from the JavaScript code of the Marketplace
          */
         @JavascriptInterface
         public void saveToken(String username, String token) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-
-            SharedPreferences.Editor prefsEditor = prefs.edit();
+            SharedPreferences.Editor prefsEditor = openPreferences();
             prefsEditor.putString(Application.BF_USER, username);
             prefsEditor.putString(Application.BF_TOKEN, token);
-
             prefsEditor.commit();
 
+        }
+
+        /**
+         * Remove the existing username and access token of the Marketplace user when
+         * she logs out. This method is called from the JavaScript code of the Marketplace
+         */
+        @JavascriptInterface
+        public void clearToken() {
+            SharedPreferences.Editor prefsEditor = openPreferences();
+            prefsEditor.remove(Application.BF_USER);
+            prefsEditor.remove(Application.BF_TOKEN);
+            prefsEditor.commit();
         }
     }
 
@@ -81,22 +101,22 @@ public class MarketActivity {
 
         // Create a web view containing the Business API Ecosystem web page
         webView = (WebView) activity.findViewById(R.id.market);
+        mPbar = (RelativeLayout) activity.findViewById(R.id.spinner);
 
-        mPbar = (ProgressBar) activity.findViewById(R.id.spinner);
-        mPbar.setVisibility(View.VISIBLE);
         webView.setWebViewClient(new SpinnerClient());
         webView.setWebChromeClient(new WebChromeClient() {
             // Handle window.open requests in order to support PayPal redirection
             @Override
             public boolean onCreateWindow(
                     WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
+
                 mPbar.setVisibility(View.VISIBLE);
-                webView.setVisibility(View.GONE);
 
                 webView.removeAllViews();
                 webView.scrollTo(0, 0);
 
                 WebView newView = new WebView(context);
+                newView.setVisibility(View.GONE);
                 newView.getSettings().setJavaScriptEnabled(true);
 
                 newView.setWebViewClient(new SpinnerClient());
