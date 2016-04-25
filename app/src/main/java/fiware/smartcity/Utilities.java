@@ -19,6 +19,7 @@ import com.here.android.mpa.mapping.MapMarker;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -311,7 +312,15 @@ public class Utilities {
         }
     }
 
-    // Ensures that no zoom level change is done very frequently
-    // so that user is not disturbed
+    public static String formatDistance(double distance) {
+        DecimalFormat df = new DecimalFormat("#");
+        String unit = "m";
+        if (distance > 1000) {
+            distance = distance / 1000;
+            df = new DecimalFormat("#.00");
+            unit = "km";
+        }
 
+        return df.format(distance) + " " + unit;
+    }
 }

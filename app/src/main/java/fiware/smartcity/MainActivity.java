@@ -65,6 +65,7 @@ import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1127,19 +1128,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         // Update ETA
         SimpleDateFormat sdf = new SimpleDateFormat("k:mm", Locale.ENGLISH);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT+1"));
+        sdf.setTimeZone(TimeZone.getDefault());
 
         Date ETADate = navMan.getEta(true, Route.TrafficPenaltyMode.DISABLED);
         ETA.setText(sdf.format(ETADate));
 
-        distance.setText(String.format("%d m", navMan.getDestinationDistance()));
+        distance.setText(Utilities.formatDistance(navMan.getDestinationDistance()));
         Maneuver nextManeuver = navMan.getNextManeuver();
 
         if (nextManeuver != null) {
             currentRoad.setText(nextManeuver.getRoadName());
             nextRoad.setText(nextManeuver.getNextRoadName());
-            nextManouverDistance.setText(String.format("%d m",
-                    navMan.getNextManeuverDistance()));
+            nextManouverDistance.setText(
+                                    Utilities.formatDistance(navMan.getNextManeuverDistance()));
 
             int id = getResources().getIdentifier(nextManeuver.getTurn().name().toLowerCase(),
                     "drawable", getPackageName());
@@ -1399,11 +1400,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         int duration = tta.getDuration();
         Date date = new Date();
         date.setTime(date.getTime() + duration * 1000);
-        SimpleDateFormat sdf = new SimpleDateFormat("k:mm", Locale.ENGLISH);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT+1"));
 
-        ((TextView) findViewById(R.id.routeSummary)).setText(String.format("Distance: %dm. Arrival: %s",
-                routeData.route.getLength(), sdf.format(date)));
+        SimpleDateFormat sdf = new SimpleDateFormat("k:mm", Locale.ENGLISH);
+        sdf.setTimeZone(TimeZone.getDefault());
+
+        String arrival = sdf.format(date);
+        ((TextView) findViewById(R.id.ETAInfo)).setText(arrival);
+
+        ((TextView) findViewById(R.id.distanceInfo)).setText(Utilities.
+                formatDistance(routeData.route.getLength()));
 
         ((TextView) findViewById(R.id.routeDestination)).setText(routeData.destination);
 
