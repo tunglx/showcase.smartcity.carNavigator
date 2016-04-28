@@ -63,7 +63,12 @@ public class ParkingRenderer {
                     Application.PARKING_LOT_ZONE_TYPE.equals(parking.type)) {
                 renderParkingLot(ctx, map, parking);
             } else if (parking.type.equals(Application.STREET_PARKING_TYPE)) {
-                renderStreetParking(ctx, map, parking);
+                try {
+                    renderStreetParking(ctx, map, parking);
+                }
+                catch(Throwable thr) {
+                    Log.e(Application.TAG, "While rendering: " + parking.id);
+                }
             }
             else if (parking.type.equals(Application.PARKING_RESTRICTION_TYPE)) {
                 renderParkingRestriction(ctx, map, parking);
@@ -74,19 +79,20 @@ public class ParkingRenderer {
     }
 
     private static void renderStreetParking(Context ctx, Map map, Entity ent) {
-        GeoCoordinate coords = new GeoCoordinate(ent.location[0], ent.location[1]);
-
-        String available =  ent.attributes.get("availableSpotNumber").toString();
+        String available =  ent.attributes.get(ParkingAttributes.AVAILABLE_SPOTS).toString();
 
         if(available.equals("0")) {
             return;
         }
 
-        String total = ent.attributes.get("totalSpotNumber").toString();
+        String total = ent.attributes.get(ParkingAttributes.TOTAL_SPOTS).toString();
 
         List<GeoPolygon> polygons = (List<GeoPolygon>)ent.attributes.get("polygon");
         for(int j = 0; j < polygons.size(); j++) {
             GeoPolygon polygon = polygons.get(j);
+
+            GeoCoordinate coords = polygon.getBoundingBox().getCenter();
+
             MapPolygon streetPolygon = new MapPolygon(polygon);
             streetPolygon.setLineColor(Color.parseColor("#FF0000FF"));
             streetPolygon.setFillColor(Color.parseColor("#770000FF"));
@@ -149,7 +155,7 @@ public class ParkingRenderer {
     private static void renderParkingLot(Context ctx, Map map, Entity ent) {
         GeoCoordinate coords = new GeoCoordinate(ent.location[0], ent.location[1]);
 
-        Integer nAvailable = (Integer)ent.attributes.get("availableSpotNumber");
+        Integer nAvailable = (Integer)ent.attributes.get(ParkingAttributes.AVAILABLE_SPOTS);
 
         String available = "?";
         if (nAvailable != null) {
@@ -157,7 +163,7 @@ public class ParkingRenderer {
         }
 
         String total = "?";
-                Integer nTotal = (Integer)ent.attributes.get("totalSpotNumber");
+                Integer nTotal = (Integer)ent.attributes.get(ParkingAttributes.TOTAL_SPOTS);
         if(nTotal != null) {
             total = nTotal.toString();
         }

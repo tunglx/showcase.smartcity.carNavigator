@@ -149,7 +149,7 @@ public class RouteActivity implements LocationListener {
         SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_WORLD_READABLE);
 
         originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Santander"));
-
+        origin.setText(prefs.getString(Application.LAST_ORIGIN, Application.EMPTY_STR));
 
         if(routeData.originCity.length() > 0) {
             originCity.setText(routeData.originCity);
@@ -176,6 +176,14 @@ public class RouteActivity implements LocationListener {
         if(city.getText().length() == 0) {
             city.setText(routeData.originCity);
             routeData.city = routeData.originCity;
+        }
+
+        SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_WORLD_READABLE);
+
+        if (routeData.originCity.equals(prefs.getString(Application.LAST_CITY_VISITED,
+                Application.EMPTY_STR))) {
+            destination.setText(prefs.getString(Application.LAST_DESTINATION,
+                    Application.EMPTY_STR));
         }
     }
 
@@ -275,7 +283,7 @@ public class RouteActivity implements LocationListener {
         origin.setOnItemClickListener(itemClickListener);
 
         if (routeData.originCity.equals("")) {
-            originCity.requestFocus();
+            // originCity.requestFocus();
         }
 
         originCity.setOnItemClickListener(itemClickListener);
@@ -545,6 +553,9 @@ public class RouteActivity implements LocationListener {
         SharedPreferences.Editor edit = Application.mainActivity.
                                     getPreferences(Activity.MODE_WORLD_WRITEABLE).edit();
         edit.putString(Application.LAST_CITY_VISITED, routeData.city);
+        edit.putString(Application.LAST_ORIGIN, routeData.origin);
+        edit.putString(Application.LAST_DESTINATION, routeData.destination);
+
         edit.commit();
 
         GeoCoordinate originCoordinates = getCoordForCity(routeData.originCity);

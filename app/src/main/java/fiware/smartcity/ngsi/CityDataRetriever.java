@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fiware.smartcity.Application;
+import fiware.smartcity.parking.ParkingAttributes;
 import fiware.smartcity.weather.WeatherAttributes;
 
 /**
@@ -181,10 +182,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
     private void fillParking(JSONObject obj, String type,
                              Map<String, Object> attrs) throws Exception {
-        getIntegerJSONAttr("availableSpotNumber", obj, "availableSpotNumber", attrs);
-        getIntegerJSONAttr("totalSpotNumber", obj, "totalSpotNumber", attrs);
-        getIntegerJSONAttr("capacity", obj, "totalSpotNumber", attrs);
-        getIntegerJSONAttr("parking_disposition", obj, "parkingDisposition", attrs);
+        getIntegerJSONAttr(ParkingAttributes.AVAILABLE_SPOTS, obj,
+                ParkingAttributes.AVAILABLE_SPOTS, attrs);
+        getIntegerJSONAttr(ParkingAttributes.TOTAL_SPOTS, obj, ParkingAttributes.TOTAL_SPOTS, attrs);
         getStringJSONAttr("name", obj, "name", attrs);
         getStringJSONAttr("description", obj, "description", attrs);
 
