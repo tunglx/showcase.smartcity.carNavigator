@@ -17,4 +17,5 @@ public class CityDataRequest {
     public String geometry;
     public GeoPolygon polygon;
     public String token;
+    public String georel;
 }

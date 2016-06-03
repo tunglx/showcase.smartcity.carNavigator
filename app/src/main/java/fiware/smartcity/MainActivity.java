@@ -65,7 +65,6 @@ import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1191,7 +1190,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                 if (!pendingSmartCityRequest) {
                     String[] types = { Application.AMBIENT_AREA_TYPE };
-                    executeDataRequest(Arrays.asList(types), Application.AMBIENT_AREA_RADIUS, loc);
+                    doExecuteDataRequest(Arrays.asList(types), -1, loc, "intersects");
                 } else {
                     Log.d(Application.TAG,
                             "Not checking ambient area because pending smart city request");
@@ -1218,7 +1217,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void executeDataRequest(final List<String> types, int radius, final GeoPosition loc) {
+        doExecuteDataRequest(types, radius, loc, "near");
+    }
+
+    private void doExecuteDataRequest(final List<String> types, int radius, final GeoPosition loc,
+                                      String georel) {
         CityDataRequest reqData = new CityDataRequest();
+        reqData.georel = georel;
         reqData.radius = radius;
         reqData.coordinates = new double[]{loc.getCoordinate().getLatitude(),
                 loc.getCoordinate().getLongitude()};

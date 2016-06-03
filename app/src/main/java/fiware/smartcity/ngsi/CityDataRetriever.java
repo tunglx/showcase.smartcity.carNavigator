@@ -118,6 +118,8 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
     private void fillLocation(JSONObject obj, Entity ent) throws JSONException {
         JSONObject location  = null;
         String locValue = null;
+        JSONArray locArray = null;
+
         try {
             location = obj.getJSONObject("centroid");
         }
@@ -133,7 +135,11 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                     try {
                         locValue = obj.getString("location");
                     }
-                    catch(JSONException jse4) { }
+                    catch(JSONException jsex) { }
+
+                    if (locValue != null && locValue.indexOf("[") == 0) {
+                        locValue = null;
+                    }
                 }
             }
         }
@@ -281,7 +287,17 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
     private void fillAmbientArea(JSONObject obj, String type,
                                  Map<String, Object> attrs) throws Exception {
 
-        attrs.put("polygon", getPolygon(obj.getString("location")));
+        JSONArray array = obj.getJSONArray("location");
+        List<GeoCoordinate> coordinates = new ArrayList<>();
+
+        for(int j = 0; j < array.length(); j++) {
+            String coordPair = array.getString(j);
+            String[] list = coordPair.split(",");
+            GeoCoordinate coord = new GeoCoordinate(Double.parseDouble(list[0]),
+                    Double.parseDouble(list[1]));
+            coordinates.add(coord);
+        }
+        attrs.put("polygon", new GeoPolygon(coordinates));
     }
 
     private GeoPolygon getPolygon(String coords) {
@@ -329,6 +345,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         String geoRelStr;
         if(req.radius != -1) {
             geoRelStr = "&georel=near;maxDistance:" + req.radius;
+        }
+        else if ("intersects".equals(req.georel)) {
+            geoRelStr = "&georel=intersects";
         }
         else {
             geoRelStr = "&georel=coveredBy";

@@ -41,14 +41,13 @@
 
         <meta-data
             android:name="com.here.android.maps.appid"
-            android:value="faqhSeEexrsqMPMVCjj7" />
+            android:value="NRKkxH8Z90CPwRFMzoSJ" />
         <meta-data
             android:name="com.here.android.maps.apptoken"
-            android:value="qMR9BDO48F9W-TA8wYlJOw" />
+            android:value="spIRDN438sdo0pgJU-qblg" />
         <meta-data
             android:name="com.here.android.maps.license.key"
-            android:value="hycubiaTCS/GB3DLzZK+ZSLeCegUlLtpNf1J1//ddP7+iOLnLy7KUjG2PYQD1U1iyUVJJxmPwUNox7uPHFOWhbik3fkaZUWRDU1pw+FK+LwBBwFwg96YjJOAphZwzCjt6F+X/bhq3HCM5/qvBJ0TemsIjXVHDCTVsq20pU/h6lR+szkQG+SxS2WvGuG3c91TjoAgzHIkW6/I7ji8Z8G8VK1OUNQs35m8TYH0NfgwIwKctbPqvbnDJyMZCPpQsrTemREJ1/R4ng3gUiK06Do5yznWvHlewsz8C48gS2NqYbvhwWyI+dFG+R6jUh2ZAndMC+ybB27A0zOsWxaAk9kfGSj/4SwGPuM1pyJYw7RZXy3oS7eeSwhOmZJyXB3dFokXVyXcBaMO0JuwqNQV+HgPuminuI6vdEE8tD0vnLpZYxEL9XnAQu0BOSGaaUVYZHQ9FdvHju8BPNmMf0PCQ6FPC8mugvKINi21pmqBcND57osM7mxoZOMUUAhjibLPGpFA8EcuWsi7r+2PWsON1zt9Wm7bdY7xD2JNXhQRP7U7Rt7X0LPBbmn4iJift0E0h8tocHbLr/uW/2++CcEhqU5tEG9WYgVvclmWFjRzVtFffKl1HtOq0hx9WY4WYdSY5hsKev4IV3dpFQSnscsl7pkYFYjqNBxyUYetdJVb+B5q4Fw=" />
-
+            android:value="XPU7hpCVi+rQUxA4q9gfQmkuOPe63PBOTvZISVpeuuaXHr2jXIX6QHKob4XsnOLE3F0AYJLX/dwC0QV2Erv0r/QIkB+nKZT6TYhNxDF/0vNz6CnSG+6wyRmnKbwqukENtL/cYMSrHkO059d+uAs7B0PFRsoL3GQASZdbMFK3oKbDGAx8SrZ0VLjrNNV15jnuYnQUNPSN3N99cY6+0gRtlHRB9NiCc0ZmtuqsDlPUJElLYmnotpRpC75PorLFq7k6EiKXk/XuQphT2Za8oaN7NtH5HbPSo6lcJhwu1I94A69qMk8f7kKrzX39ySHy0i1ttMHf0XUgOUYfOjZG9uGSotuf9XBAYWrNyF8DrmGSrjIuLifh4I16ECnyY4fzYwmP3U6N5YmAVVVgPUhznRwcrKLQp9bFygCzh4zvA9Pae2qdcmUYA5QZpyvsD9sfYibfMAfi48xI7GfG3vdzqFOcFGPicvKwhaA3p7Av/csVjvCSLwbxFIjJXb2m+70d4p1eoTDXYk7ckWFMvVenlBcwwdh9/daYPRrkSx2YI58oM/hF8sJGadH2qOkFH/dzbRzbKc7pJA+7POE7cV/24ywKHSYsocSh1eiiggKjteE4qMfsE1w1HQV3uQRLHoNke7eElMbzWm60SkLoaU8NbjF+zwlolCJExmZidygawpn6pO4=" />
     </application>
 
 </manifest>
