@@ -125,12 +125,12 @@ public class SmartCityHandler extends AsyncTask<SmartCityRequest, Integer, Map<S
             long accuracy = Long.MAX_VALUE;
             long after = Long.MAX_VALUE;
             DateTime now = new DateTime();
-            for(Entity ow: weather) {
-                Map<String, String> valid = (Map<String, String>)ow.attributes.get("validity");
-                if (valid != null) {
-                    String from = valid.get("from");
-                    String to = valid.get("to");
 
+            for(Entity ow: weather) {
+                String from = (String)ow.attributes.get("validFrom");
+                String to = (String)ow.attributes.get("validTo");
+
+                if (from != null && to != null) {
                     DateTimeFormatter parser    = ISODateTimeFormat.dateTimeParser();
                     DateTime dateFrom = parser.parseDateTime(from);
                     DateTime dateTo = parser.parseDateTime(to);

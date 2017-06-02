@@ -126,13 +126,13 @@ public class AmbientAreaRenderer implements CityDataListener {
                             + data.worstIndex.get("description") + " pollution", 100, "Pollution_Area" ));
                     Utilities.speak(tts, msgs);
 
-                    /*
-                    GeoCoordinate coords = new GeoCoordinate(ambientArea.location[0],
-                            ambientArea.location[1]); */
 
-                    PointF f = hereMap.geoToPixel(currentPos);
-                    f.offset(100, 50);
-                    GeoCoordinate coords = hereMap.pixelToGeo(f);
+                    GeoCoordinate coords = new GeoCoordinate(ambientArea.location[0],
+                            ambientArea.location[1]);
+
+                    // PointF f = hereMap.geoToPixel(currentPos);
+                    // f.offset(100, 50);
+                    // GeoCoordinate coords = hereMap.pixelToGeo(f);
 
                     MapMarker marker = Utilities.buildSensorMarker(coords, "Air Quality",
                             data.asString);

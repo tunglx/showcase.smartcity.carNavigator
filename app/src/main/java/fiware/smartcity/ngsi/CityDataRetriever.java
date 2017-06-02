@@ -34,7 +34,7 @@ import fiware.smartcity.weather.WeatherAttributes;
 public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String,List<Entity>> > {
     private CityDataListener listener;
 
-    private static String SERVICE_URL = "http://130.206.83.68:7007/v2/entities";
+    private static String SERVICE_URL = "http://130.206.121.52:7007/v2/entities";
 
     protected Map<String,List<Entity>> doInBackground(CityDataRequest... request) {
         String urlString = createRequestURL(request[0]);
@@ -275,11 +275,13 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         getCompoundJSONAttr(WeatherAttributes.MAXIMUM, obj, null, attrs);
         getCompoundJSONAttr(WeatherAttributes.MINIMUM, obj, null, attrs);
 
-        getCompoundJSONAttr(WeatherAttributes.VALIDITY, obj, null, attrs);
+        getStringJSONAttr(WeatherAttributes.VALID_FROM, obj, null, attrs);
+        getStringJSONAttr(WeatherAttributes.VALID_TO, obj, null, attrs);
 
-        getDoubleJSONAttr("windSpeed", obj, null, attrs);
-        getStringJSONAttr("windDirection", obj, null, attrs);
-        getStringJSONAttr("weatherType", obj, null, attrs);
+        getDoubleJSONAttr(WeatherAttributes.WIND_SPEED, obj, null, attrs);
+        getIntegerJSONAttr(WeatherAttributes.WIND_DIRECTION, obj, null, attrs);
+        
+        getStringJSONAttr(WeatherAttributes.WEATHER_TYPE, obj, null, attrs);
 
         getDoubleJSONAttr(WeatherAttributes.POP, obj, null, attrs);
     }

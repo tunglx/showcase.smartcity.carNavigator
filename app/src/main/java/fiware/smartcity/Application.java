@@ -38,11 +38,11 @@ public class Application {
     public static int DISTANCE_FREQ_AMBIENT_AREA = 250;
 
     /* NGSI types used for querying data */
-    public static String AMBIENT_OBSERVED_TYPE = "AmbientObserved";
-    public static String AMBIENT_AREA_TYPE     = "AmbientArea";
+    public static String AMBIENT_OBSERVED_TYPE = "AirQualityObserved";
+    public static String AMBIENT_AREA_TYPE     = "District";
     public static String PARKING_TYPE          = "Parking";
-    public static String STREET_PARKING_TYPE   = "StreetParking";
-    public static String PARKING_LOT_TYPE      = "ParkingLot";
+    public static String STREET_PARKING_TYPE   = "OnStreetParking";
+    public static String PARKING_LOT_TYPE      = "OffStreetParking";
     public static String WEATHER_FORECAST_TYPE = "WeatherForecast";
     public static String GAS_STATION_TYPE      = "GasStation";
     public static String GARAGE_TYPE           = "Garage";

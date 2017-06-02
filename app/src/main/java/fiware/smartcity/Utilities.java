@@ -27,6 +27,7 @@ import fiware.smartcity.ambient.AmbientAreaRenderer;
 import fiware.smartcity.navigation.SpeechMessage;
 import fiware.smartcity.weather.WeatherAttributes;
 import fiware.smartcity.weather.WeatherTypes;
+import fiware.smartcity.weather.WindDirection;
 
 /**
  *
@@ -157,7 +158,7 @@ public class Utilities {
             tv.setText((long)windSpeed.doubleValue() + "Km/h");
         }
 
-        String windDirection = (String)data.get(WeatherAttributes.WIND_DIRECTION);
+        String windDirection = WindDirection.get((Integer)data.get(WeatherAttributes.WIND_DIRECTION));
         if (windDirection != null) {
             TextView tv = (TextView)v.findViewById(R.id.windDirection);
             tv.setText(windDirection);
