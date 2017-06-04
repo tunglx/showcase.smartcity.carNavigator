@@ -24,7 +24,7 @@ import fiware.smartcity.Application;
 public class AirQualityParameters {
     private static AirQualityParameters instance = new AirQualityParameters();
 
-    private static String THRESHOLDS_URL = "http://130.206.83.68:1026/v2/entities";
+    private static String THRESHOLDS_URL = Application.SERVICE_URL;
 
     private boolean dataLoaded = false;
 

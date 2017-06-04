@@ -13,6 +13,8 @@ import java.util.Map;
  *
  */
 public class Application {
+    public static String SERVICE_URL = "http://130.206.121.52:7007/v2/entities";
+
     public static MainActivity mainActivity = null;
 
     public static int THRESHOLD_DISTANCE = 4000;

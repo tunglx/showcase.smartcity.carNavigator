@@ -34,8 +34,6 @@ import fiware.smartcity.weather.WeatherAttributes;
 public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String,List<Entity>> > {
     private CityDataListener listener;
 
-    private static String SERVICE_URL = "http://130.206.121.52:7007/v2/entities";
-
     protected Map<String,List<Entity>> doInBackground(CityDataRequest... request) {
         String urlString = createRequestURL(request[0]);
 
@@ -130,10 +128,34 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         if (location != null) {
             try {
                 ent.coordinates = location.getJSONArray("coordinates");
+                JSONArray polygons = ent.coordinates;
+                if (location.getString("type").equals("MultiPolygon")) {
+                    polygons = ent.coordinates.getJSONArray(0);
+                }
 
-                JSONArray array1 = ent.coordinates.getJSONArray(0);
-                JSONArray array2 = array1.getJSONArray(0);
-                ent.location = new double[]{ array2.getDouble(1), array2.getDouble(0)};
+                if (location.getString("type").indexOf("Polygon") != -1) {
+                    List<GeoPolygon> locationPolygon = new ArrayList<GeoPolygon>();
+
+                    int total = polygons.length();
+                    for (int j = 0; j < total; j++) {
+                        JSONArray polygon = polygons.getJSONArray(j);
+                        List<GeoCoordinate> geoPolygon = new ArrayList<GeoCoordinate>();
+                        for (int x = 0; x < polygon.length(); x++) {
+                            double lat = polygon.getJSONArray(x).getDouble(1);
+                            double lon = polygon.getJSONArray(x).getDouble(0);
+                            geoPolygon.add(new GeoCoordinate(lat, lon));
+                        }
+
+                        GeoPolygon newGeoPolygon = new GeoPolygon(geoPolygon);
+                        locationPolygon.add(newGeoPolygon);
+
+                        GeoCoordinate coords = newGeoPolygon.getBoundingBox().getCenter();
+
+                        ent.location = new double[]{coords.getLatitude(), coords.getLongitude()};
+                    }
+
+                    ent.attributes.put("polygon", locationPolygon);
+                }
             }
             catch(JSONException jse) { }
         }
@@ -176,36 +198,6 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         getIntegerJSONAttr(ParkingAttributes.TOTAL_SPOTS, obj, ParkingAttributes.TOTAL_SPOTS, attrs);
         getStringJSONAttr("name", obj, "name", attrs);
         getStringJSONAttr("description", obj, "description", attrs);
-
-        if (type.equals(Application.STREET_PARKING_TYPE)) {
-            boolean isArray = true;
-            JSONArray polygons = null;
-
-            List<GeoPolygon> location = new ArrayList<GeoPolygon>();
-            try {
-                polygons = obj.getJSONObject("location").getJSONArray("coordinates");
-            }
-            catch(JSONException jsoe) {
-                isArray = false;
-            }
-            if (isArray == true) {
-                int total = polygons.length();
-                for (int j = 0; j < total; j++) {
-                    JSONArray polygon = polygons.getJSONArray(j);
-                    List<GeoCoordinate> geoPolygon = new ArrayList<GeoCoordinate>();
-                    for (int x = 0; x < polygon.length(); x++) {
-                        double lat = Double.parseDouble(polygon.getJSONArray(x).getString(1));
-                        double lon = Double.parseDouble(polygon.getJSONArray(x).getString(0));
-                        geoPolygon.add(new GeoCoordinate(lat, lon));
-                    }
-                    location.add(new GeoPolygon(geoPolygon));
-                }
-            }
-            else {
-                location.add(getPolygon(obj.getString("location")));
-            }
-            attrs.put("polygon", location);
-        }
     }
 
     private void fillAttributes(JSONObject obj, String type,
@@ -351,7 +343,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             coords = coords.substring(0,coords.length() - 1);
         }
 
-        String out = SERVICE_URL + "?" + "coords=" + coords
+        String out = Application.SERVICE_URL + "?" + "coords=" + coords
                 + geoRelStr + "&type=" + getTypes(req.types) + "&geometry=" + geometry;
 
         if (req.token != null && req.token.length() > 0) {
