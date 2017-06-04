@@ -121,38 +121,21 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         JSONArray locArray = null;
 
         try {
-            location = obj.getJSONObject("centroid");
+            location = obj.getJSONObject("location");
         }
-        catch(JSONException jse) {
-            try {
-                locValue = obj.getString("centroid");
-            }
-            catch(JSONException jse2) {
-                try {
-                    location = obj.getJSONObject("location");
-                }
-                catch(JSONException jse3) {
-                    try {
-                        locValue = obj.getString("location");
-                    }
-                    catch(JSONException jsex) { }
-
-                    if (locValue != null && locValue.indexOf("[") == 0) {
-                        locValue = null;
-                    }
-                }
-            }
+        catch(JSONException jse3) {
         }
 
         // There could be entities (namely weather entities) without location
         if (location != null) {
-            locValue = location.getString("value");
-        }
-        if (locValue != null) {
-            String[] coordinates = locValue.split(",");
+            try {
+                ent.coordinates = location.getJSONArray("coordinates");
 
-            ent.location = new double[]{Double.parseDouble(coordinates[0]),
-                    Double.parseDouble(coordinates[1])};
+                JSONArray array1 = ent.coordinates.getJSONArray(0);
+                JSONArray array2 = array1.getJSONArray(0);
+                ent.location = new double[]{ array2.getDouble(1), array2.getDouble(0)};
+            }
+            catch(JSONException jse) { }
         }
     }
 
@@ -200,7 +183,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
             List<GeoPolygon> location = new ArrayList<GeoPolygon>();
             try {
-                polygons = obj.getJSONArray("location").getJSONArray(0);
+                polygons = obj.getJSONObject("location").getJSONArray("coordinates");
             }
             catch(JSONException jsoe) {
                 isArray = false;
@@ -211,8 +194,8 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                     JSONArray polygon = polygons.getJSONArray(j);
                     List<GeoCoordinate> geoPolygon = new ArrayList<GeoCoordinate>();
                     for (int x = 0; x < polygon.length(); x++) {
-                        double lat = Double.parseDouble(polygon.getJSONArray(x).getString(0));
-                        double lon = Double.parseDouble(polygon.getJSONArray(x).getString(1));
+                        double lat = Double.parseDouble(polygon.getJSONArray(x).getString(1));
+                        double lon = Double.parseDouble(polygon.getJSONArray(x).getString(0));
                         geoPolygon.add(new GeoCoordinate(lat, lon));
                     }
                     location.add(new GeoPolygon(geoPolygon));
@@ -280,7 +263,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
         getDoubleJSONAttr(WeatherAttributes.WIND_SPEED, obj, null, attrs);
         getIntegerJSONAttr(WeatherAttributes.WIND_DIRECTION, obj, null, attrs);
-        
+
         getStringJSONAttr(WeatherAttributes.WEATHER_TYPE, obj, null, attrs);
 
         getDoubleJSONAttr(WeatherAttributes.POP, obj, null, attrs);
