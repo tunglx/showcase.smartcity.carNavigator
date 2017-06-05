@@ -630,7 +630,8 @@ public class RouteActivity implements LocationListener {
             }
         }
         else if(currentStep.equals("Destination")) {
-            if(city.getText().length() > 0 && destination.getText().length() > 0) {
+            if(city.getText().length() > 0 && (destination.getText().length() > 0
+                    || poi.getText().length() > 0)) {
                 nextButton.setEnabled(true);
             }
             else {
