@@ -128,12 +128,18 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         if (location != null) {
             try {
                 ent.coordinates = location.getJSONArray("coordinates");
-                JSONArray polygons = ent.coordinates;
-                if (location.getString("type").equals("MultiPolygon")) {
-                    polygons = ent.coordinates.getJSONArray(0);
-                }
 
-                if (location.getString("type").indexOf("Polygon") != -1) {
+                if (location.getString("type").equals("Point")) {
+                    double latitude = ent.coordinates.getDouble(1);
+                    double longitude = ent.coordinates.getDouble(0);
+                    ent.location = new double[]{latitude, longitude};
+                }
+                else if (location.getString("type").indexOf("Polygon") != -1) {
+                    JSONArray polygons = ent.coordinates;
+                    if (location.getString("type").equals("MultiPolygon")) {
+                        polygons = ent.coordinates.getJSONArray(0);
+                    }
+
                     List<GeoPolygon> locationPolygon = new ArrayList<GeoPolygon>();
 
                     int total = polygons.length();
