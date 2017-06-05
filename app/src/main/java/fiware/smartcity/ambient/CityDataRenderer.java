@@ -89,7 +89,7 @@ public class CityDataRenderer {
             }
         }
 
-        calculator.execute(pollutantData);
+        // calculator.execute(pollutantData);
         calculator.setListener(new ResultListener<java.util.Map<String, java.util.Map>>() {
             @Override
             public void onResultReady(java.util.Map<String, java.util.Map> result) {

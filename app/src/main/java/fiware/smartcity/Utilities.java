@@ -213,7 +213,7 @@ public class Utilities {
     }
 
     public static void updateAirPollution(Map<String, Map> data, LinearLayout parent) {
-        if (data.size() == 0) {
+        if (data == null || data.size() == 0) {
             return;
         }
 
