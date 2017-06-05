@@ -95,7 +95,7 @@ public class RouteActivity implements LocationListener {
             { 41.38561, 2.16873 },
             { 43.4666, -3.79998 },
             { 37.3879, -6.00198 },
-            { 36.71667, -4.41668 },
+            { 36.7585406, -4.3971722 },
             { 40.42028, -3.70578 },
             { 43.3712591, -8.4188010}
     };
@@ -332,6 +332,15 @@ public class RouteActivity implements LocationListener {
         poi.setAdapter(poiAdapter);
         poi.addTextChangedListener(new MyTextWatcher(poi, poiAdapter));
         poi.setOnTouchListener(new MyTouchListener(poi));
+
+        poi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                activity.findViewById(R.id.destLabel).setVisibility(View.GONE);
+                destination.setVisibility(View.GONE);
+                InputMethodManager mgr = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                mgr.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+            }
+        });
 
         /*
         if (routeData.city.equals("")) {
@@ -678,9 +687,10 @@ public class RouteActivity implements LocationListener {
             if(view.getId() == R.id.destPoiInput) {
                 CityDataRequest reqData = new CityDataRequest();
                 reqData.georel = "near";
-                reqData.radius = 5000;
+                reqData.radius = Application.POI_DISTANCE;
 
-                reqData.coordinates = new double[]{36.7585406, -4.3971722};
+                String destCity = city.getText().toString();
+                reqData.coordinates =  RouteActivity.cityCoords.get(destCity);
 
                 reqData.types.add("PointOfInterest");
 
@@ -689,6 +699,11 @@ public class RouteActivity implements LocationListener {
                 retriever.setListener(new CityDataListener() {
                     @Override
                     public void onCityDataReady(java.util.Map<String, List<Entity>> data) {
+                        if(data.size() < 2) {
+                            Log.d(Application.TAG, "No POIs retrieved");
+                            return;
+                        }
+
                         List<String> poiNames = new ArrayList<String>();
                         List<Entity> pois = data.get(Application.POI_TYPE);
 
