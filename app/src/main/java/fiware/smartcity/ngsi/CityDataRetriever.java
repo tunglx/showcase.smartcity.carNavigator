@@ -237,6 +237,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         else if (type.equals(Application.PARKING_RESTRICTION_TYPE)) {
             fillParkingRestriction(obj, type, attrs);
         }
+        else if (type.equals(Application.POI_TYPE)) {
+            fillPoi(obj, type, attrs);
+        }
     }
 
     private void fillGarage (JSONObject obj, String type,
@@ -245,6 +248,11 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
     }
 
     private void fillGasStation (JSONObject obj, String type,
+                                 Map<String, Object> attrs) throws Exception {
+        getStringJSONAttr("name", obj, null, attrs);
+    }
+
+    private void fillPoi (JSONObject obj, String type,
                                  Map<String, Object> attrs) throws Exception {
         getStringJSONAttr("name", obj, null, attrs);
     }

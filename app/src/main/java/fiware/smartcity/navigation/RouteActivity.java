@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -54,6 +55,10 @@ import fiware.smartcity.Alert;
 import fiware.smartcity.Application;
 import fiware.smartcity.MainActivity;
 import fiware.smartcity.R;
+import fiware.smartcity.ngsi.CityDataListener;
+import fiware.smartcity.ngsi.CityDataRequest;
+import fiware.smartcity.ngsi.CityDataRetriever;
+import fiware.smartcity.ngsi.Entity;
 
 /**
  *  Route Wizard
@@ -65,13 +70,17 @@ public class RouteActivity implements LocationListener {
 
     private ProgressDialog progress, locationProgress;
 
-    private AutoCompleteTextView origin, destination, city, originCity;
+    private AutoCompleteTextView origin, destination, city, originCity, poi;
     private Button nextButton;
 
     private ArrayAdapter<String> originAdapter;
     private ArrayAdapter<String> destinationAdapter;
+    private ArrayAdapter<String> poiAdapter;
+
     private List<String> optionList1 = new ArrayList<String>();
     private List<String> optionList2 = new ArrayList<String>();
+    private List<String> optionList3 = new ArrayList<String>();
+
     private static String[] CITIES = new String[] {
             "Valencia",
             "Barcelona",
@@ -315,6 +324,14 @@ public class RouteActivity implements LocationListener {
 
         city.setText(routeData.city);
         destination.setText(routeData.destination);
+
+        poi = (AutoCompleteTextView)activity.findViewById(R.id.destPoiInput);
+
+        poiAdapter = new ArrayAdapter<String>(activity,
+                android.R.layout.simple_dropdown_item_1line, optionList3);
+        poi.setAdapter(poiAdapter);
+        poi.addTextChangedListener(new MyTextWatcher(poi, poiAdapter));
+        poi.setOnTouchListener(new MyTouchListener(poi));
 
         /*
         if (routeData.city.equals("")) {
@@ -658,6 +675,41 @@ public class RouteActivity implements LocationListener {
         private void executeSearch(String query) {
             pendingRequest = true;
 
+            if(view.getId() == R.id.destPoiInput) {
+                CityDataRequest reqData = new CityDataRequest();
+                reqData.georel = "near";
+                reqData.radius = 5000;
+
+                reqData.coordinates = new double[]{36.7585406, -4.3971722};
+
+                reqData.types.add("PointOfInterest");
+
+                Log.d(Application.TAG, "Going to retrieve data ..." + reqData.types);
+                CityDataRetriever retriever = new CityDataRetriever();
+                retriever.setListener(new CityDataListener() {
+                    @Override
+                    public void onCityDataReady(java.util.Map<String, List<Entity>> data) {
+                        List<String> poiNames = new ArrayList<String>();
+                        List<Entity> pois = data.get(Application.POI_TYPE);
+
+                        for (Entity ent: pois) {
+                            poiNames.add((String)ent.attributes.get("name"));
+                        }
+
+                        adapter = new ArrayAdapter<>(activity,
+                                android.R.layout.simple_dropdown_item_1line,
+                                (String[])poiNames.toArray(new String[0]));
+
+                        view.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+
+                retriever.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, reqData);
+
+                return;
+            }
+
             String scity = "";
             GeoCoordinate searchCenter = MainActivity.DEFAULT_COORDS;
             if(view.getTag() != null && view.getTag().equals("originAddress")) {
@@ -706,7 +758,9 @@ public class RouteActivity implements LocationListener {
             checkNextButton(view);
 
             String tag = (String)view.getTag();
-            if(tag == null || tag.indexOf("Address") == -1) {
+            if(tag == null || tag.indexOf("Address") == -1 && tag.indexOf("poi") == -1) {
+                Log.d(Application.TAG, "View Tag: " + tag);
+                Log.d(Application.TAG, "Exit tag does not contain address or POI");
                 return;
             }
 

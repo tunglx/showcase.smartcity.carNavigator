@@ -48,6 +48,7 @@ public class Application {
     public static String WEATHER_FORECAST_TYPE = "WeatherForecast";
     public static String GAS_STATION_TYPE      = "GasStation";
     public static String GARAGE_TYPE           = "Garage";
+    public static String POI_TYPE              = "PointOfInterest";
 
     // It is used to mark any data type to be retrieved
     public static String ANY_ENTITY_TYPE =       "__any__";
@@ -115,4 +116,6 @@ public class Application {
 
     public static final int LOCATION_PERMISSION = 1;
     public static final int STORAGE_PERMISSION = 2;
+
+    public static final int POI_DISTANCE = 5000;
 }

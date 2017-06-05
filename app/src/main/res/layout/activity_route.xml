@@ -100,7 +100,7 @@
                     android:hint="Enter Address"
                     android:tag="originAddress">
                 </AutoCompleteTextView>
-
+                
                 <Button
                     android:layout_width="450dip"
                     android:layout_height="wrap_content"
