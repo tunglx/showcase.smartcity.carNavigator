@@ -112,4 +112,7 @@ public class Application {
     public static String BF_USER  = "bf_user";
 
     public static String EMPTY_STR = "";
+
+    public static final int LOCATION_PERMISSION = 1;
+    public static final int STORAGE_PERMISSION = 2;
 }

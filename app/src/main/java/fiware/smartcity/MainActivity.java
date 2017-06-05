@@ -3,6 +3,7 @@ package fiware.smartcity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -13,6 +14,8 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -165,6 +168,210 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private AmbientAreaData ambientAreaData = new AmbientAreaData();
 
     private boolean pendingSmartCityRequest = false;
+
+    private void checkStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED){
+
+            ActivityCompat.requestPermissions(
+                    this, new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, Application.STORAGE_PERMISSION);
+
+        } else {
+            initMainActivity();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case Application.LOCATION_PERMISSION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    checkStoragePermission();
+                } else {
+                    // Do something interesting
+                    Log.e(Application.TAG, "Error: Location permission is required to use the App");
+                    this.finish();
+                    System.exit(0);
+                }
+                return;
+            }
+            case Application.STORAGE_PERMISSION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    initMainActivity();
+                } else {
+                    // Do something interesting
+                    Log.e(Application.TAG, "Error: Storage permission is required to use the App");
+                    this.finish();
+                    System.exit(0);
+                }
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        // remove title
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        super.onCreate(savedInstanceState);
+
+        Application.mainActivity = this;
+
+        // Check app permissions
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(
+                    this, new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION}, Application.LOCATION_PERMISSION);
+
+        } else {
+            checkStoragePermission();
+        }
+    }
+
+    private void initMainActivity() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        setContentView(R.layout.main);
+
+        ViewGroup rootContainer = (ViewGroup)findViewById(R.id.mainFrame);
+
+        getLayoutInflater().inflate(R.layout.activity_main, rootContainer);
+
+        addMapWidgets();
+
+        parkingData = (TextView)findViewById(R.id.parkingData);
+        parkingSign = (ImageView)findViewById(R.id.parkingSign);
+
+        popupMenu = new PopupMenu(MainActivity.this, menuButton);
+        popupMenu.getMenuInflater().inflate(R.menu.menu_main, popupMenu.getMenu());
+        popupMenu.getMenu().setGroupVisible(R.id.restartGroup, false);
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_simulate) {
+                    if (routeWizard == null) {
+                        loopMode = false;
+                        getDirections(null);
+                    }
+                } else if (item.getItemId() == R.id.action_home) {
+                    ((RelativeLayout) findViewById(R.id.routePlanningLayout)).
+                            setVisibility(RelativeLayout.GONE);
+                    goHome();
+                } else if (item.getItemId() == R.id.action_pause) {
+                    pauseSimulation();
+                } else if (item.getItemId() == R.id.action_terminate) {
+                    loopMode = false;
+                    terminateSimulation();
+                } else if (item.getItemId() == R.id.action_restart) {
+                    clearMap();
+                    showRoute();
+                } else if (item.getItemId() == R.id.action_loop) {
+                    if (routeWizard == null) {
+                        loopMode = true;
+                        getDirections(null);
+                    }
+                } else if (item.getItemId() == R.id.action_market) {
+                    showMarketplace();
+                }
+                return true;
+            }
+        });
+
+        nextRoad = (TextView)findViewById(R.id.nextRoad);
+        currentSpeed = (TextView)findViewById(R.id.currentSpeed);
+        distance = (TextView)findViewById(R.id.distance2);
+        ETA = (TextView)findViewById(R.id.eta);
+        currentRoad = (TextView)findViewById(R.id.currentRoad);
+        nextManouverDistance = (TextView)findViewById(R.id.manouver);
+
+        turnNavigation = (ImageView)findViewById(R.id.nextTurn);
+
+        hideNavigationUI();
+
+        // Search for the map fragment to finish setup by calling init().
+        mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.mapfragment);
+
+        mapFragment.init(new OnEngineInitListener() {
+            @Override
+            public void onEngineInitializationCompleted(OnEngineInitListener.Error error) {
+                if (error == OnEngineInitListener.Error.NONE) {
+                    Log.d(Application.TAG, "Version: " + Version.SDK_API_INT);
+                    mapFragment.getMapGesture().addOnGestureListener(gestureListener);
+
+                    // retrieve a reference of the map from the map fragment
+                    map = mapFragment.getMap();
+                    // Oporto downtown
+                    String city =
+                            getPreferences(MODE_WORLD_READABLE).getString(
+                                    Application.LAST_CITY_VISITED, "Santander");
+                    double[] coords = RouteActivity.cityCoords.get(city);
+                    DEFAULT_COORDS = new GeoCoordinate(coords[0], coords[1]);
+
+                    defaultZoomLevel = map.getMaxZoomLevel() - 7.0;
+                    routeZoomLevel = map.getMaxZoomLevel() - 2.5;
+
+                    goTo(map, DEFAULT_COORDS, Map.Animation.NONE);
+
+                    map.setExtrudedBuildingsVisible(true);
+                    map.getPositionIndicator().setVisible(true);
+                    map.setLandmarksVisible(true);
+                    map.setCartoMarkersVisible(true);
+                    // map.setVisibleLayers(Map.LayerCategory.STREET_CATEGORY_0, true);
+
+                    map.addTransformListener(transformListener);
+
+                    posMan = PositioningManager.getInstance();
+                    posMan.start(PositioningManager.LocationMethod.GPS_NETWORK);
+
+                    VoiceNavigation.downloadTargetVoiceSkin(VoiceCatalog.getInstance());
+
+                } else {
+                    Log.e(Application.TAG, "ERROR: Cannot initialize Map Fragment");
+                }
+            }
+        });
+
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                tts.setLanguage(Locale.ENGLISH);
+                // This is for announcing presence of smart city data
+                tts.addEarcon("smart_city", getPackageName(), R.raw.data2);
+                tts.addEarcon("parking_mode", getPackageName(), R.raw.parking_mode);
+                tts.addEarcon("ambient_area", getPackageName(), R.raw.ambientarea);
+            }
+        });
+
+        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override
+            public void onStart(String utteranceId) {
+
+            }
+
+            @Override
+            public void onDone(String utteranceId) {
+                if(utteranceId.equals("Entity_End")) {
+                    Application.isSpeaking = false;
+                    Application.lastTimeSpeak = new DateTime().getMillis();
+                    /*
+                    map.setZoomLevel(currentZoomLevel,
+                            map.projectToPixel(map.getCenter()).getResult(), Map.Animation.LINEAR);
+                            */
+                }
+            }
+
+            @Override
+            public void onError(String utteranceId) {
+
+            }
+        });
+    }
+
 
     private void onCityDataReadyProcess(java.util.Map<String, List<Entity>> data,
                                         List<String> typesRequested, GeoPosition pos) {
@@ -493,153 +700,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         paramsLogoCouncil.topMargin = 110;
         rl2.addView(councilLogo, paramsLogoCouncil);
         councilLogo.setVisibility(RelativeLayout.GONE);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        // remove title
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        super.onCreate(savedInstanceState);
-        Application.mainActivity = this;
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        setContentView(R.layout.main);
-
-        ViewGroup rootContainer = (ViewGroup)findViewById(R.id.mainFrame);
-
-        getLayoutInflater().inflate(R.layout.activity_main, rootContainer);
-
-        addMapWidgets();
-
-        parkingData = (TextView)findViewById(R.id.parkingData);
-        parkingSign = (ImageView)findViewById(R.id.parkingSign);
-
-        popupMenu = new PopupMenu(MainActivity.this, menuButton);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_main, popupMenu.getMenu());
-        popupMenu.getMenu().setGroupVisible(R.id.restartGroup, false);
-
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.action_simulate) {
-                    if (routeWizard == null) {
-                        loopMode = false;
-                        getDirections(null);
-                    }
-                } else if (item.getItemId() == R.id.action_home) {
-                    ((RelativeLayout) findViewById(R.id.routePlanningLayout)).
-                                                                setVisibility(RelativeLayout.GONE);
-                    goHome();
-                } else if (item.getItemId() == R.id.action_pause) {
-                    pauseSimulation();
-                } else if (item.getItemId() == R.id.action_terminate) {
-                    loopMode = false;
-                    terminateSimulation();
-                } else if (item.getItemId() == R.id.action_restart) {
-                    clearMap();
-                    showRoute();
-                } else if (item.getItemId() == R.id.action_loop) {
-                    if (routeWizard == null) {
-                        loopMode = true;
-                        getDirections(null);
-                    }
-                } else if (item.getItemId() == R.id.action_market) {
-                    showMarketplace();
-                }
-                return true;
-            }
-        });
-
-        nextRoad = (TextView)findViewById(R.id.nextRoad);
-        currentSpeed = (TextView)findViewById(R.id.currentSpeed);
-        distance = (TextView)findViewById(R.id.distance2);
-        ETA = (TextView)findViewById(R.id.eta);
-        currentRoad = (TextView)findViewById(R.id.currentRoad);
-        nextManouverDistance = (TextView)findViewById(R.id.manouver);
-
-        turnNavigation = (ImageView)findViewById(R.id.nextTurn);
-
-        hideNavigationUI();
-
-        // Search for the map fragment to finish setup by calling init().
-        mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.mapfragment);
-
-        mapFragment.init(new OnEngineInitListener() {
-            @Override
-            public void onEngineInitializationCompleted(OnEngineInitListener.Error error) {
-                if (error == OnEngineInitListener.Error.NONE) {
-                    Log.d(Application.TAG, "Version: " + Version.SDK_API_INT);
-                    mapFragment.getMapGesture().addOnGestureListener(gestureListener);
-
-                    // retrieve a reference of the map from the map fragment
-                    map = mapFragment.getMap();
-                    // Oporto downtown
-                    String city =
-                            getPreferences(MODE_WORLD_READABLE).getString(
-                                    Application.LAST_CITY_VISITED, "Santander");
-                    double[] coords = RouteActivity.cityCoords.get(city);
-                    DEFAULT_COORDS = new GeoCoordinate(coords[0], coords[1]);
-
-                    defaultZoomLevel = map.getMaxZoomLevel() - 7.0;
-                    routeZoomLevel = map.getMaxZoomLevel() - 2.5;
-
-                    goTo(map, DEFAULT_COORDS, Map.Animation.NONE);
-
-                    map.setExtrudedBuildingsVisible(true);
-                    map.getPositionIndicator().setVisible(true);
-                    map.setLandmarksVisible(true);
-                    map.setCartoMarkersVisible(true);
-                    // map.setVisibleLayers(Map.LayerCategory.STREET_CATEGORY_0, true);
-
-                    map.addTransformListener(transformListener);
-
-                    posMan = PositioningManager.getInstance();
-                    posMan.start(PositioningManager.LocationMethod.GPS_NETWORK);
-
-                    VoiceNavigation.downloadTargetVoiceSkin(VoiceCatalog.getInstance());
-
-                } else {
-                    Log.e(Application.TAG, "ERROR: Cannot initialize Map Fragment");
-                }
-            }
-        });
-
-        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                tts.setLanguage(Locale.ENGLISH);
-                // This is for announcing presence of smart city data
-                tts.addEarcon("smart_city", getPackageName(), R.raw.data2);
-                tts.addEarcon("parking_mode", getPackageName(), R.raw.parking_mode);
-                tts.addEarcon("ambient_area", getPackageName(), R.raw.ambientarea);
-            }
-        });
-
-        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-            @Override
-            public void onStart(String utteranceId) {
-
-            }
-
-            @Override
-            public void onDone(String utteranceId) {
-                if(utteranceId.equals("Entity_End")) {
-                    Application.isSpeaking = false;
-                    Application.lastTimeSpeak = new DateTime().getMillis();
-                    /*
-                    map.setZoomLevel(currentZoomLevel,
-                            map.projectToPixel(map.getCenter()).getResult(), Map.Animation.LINEAR);
-                            */
-                }
-            }
-
-            @Override
-            public void onError(String utteranceId) {
-
-            }
-        });
     }
 
     public void calculateCurrentPosition(LocationListener callback) {
