@@ -35,7 +35,7 @@ A video of the functionality offered can be found [here](https://drive.google.co
 The application runs on top of the
 [HERE Maps Premium SDK](https://developer.here.com/mobile-sdks/documentation/android-hybrid-plus/topics/overview.html) for Android.
 So in order to run it you would need to apply for an evaluation copy of such SDK and register an application under the namespace
-`fiware.smartcity`. Then you will need to configure the corresponding credentials in the `AndroidManifest.xml`file.
+`hmi.parkinglot`. Then you will need to configure the corresponding credentials in the `AndroidManifest.xml`file.
 
 For your convenience an example of manifest.xml file is provided, so that you will only
 have to add your credentials at the corresponding `meta-data` sections. 

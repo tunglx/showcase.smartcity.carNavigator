@@ -2,14 +2,14 @@
 
     <!-- These settings headers are only used on tablets. -->
 
-    <header android:fragment="fiware.smartcity.navigation.RouteActivity$GeneralPreferenceFragment"
+    <header android:fragment="hmi.parkinglot.navigation.RouteActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" android:icon="@drawable/ic_info_black_24dp" />
 
-    <header android:fragment="fiware.smartcity.navigation.RouteActivity$NotificationPreferenceFragment"
+    <header android:fragment="hmi.parkinglot.navigation.RouteActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications"
         android:icon="@drawable/ic_notifications_black_24dp" />
 
-    <header android:fragment="fiware.smartcity.navigation.RouteActivity$DataSyncPreferenceFragment"
+    <header android:fragment="hmi.parkinglot.navigation.RouteActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" android:icon="@drawable/ic_sync_black_24dp" />
 
 </preference-headers>

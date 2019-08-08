@@ -1,4 +1,4 @@
-package fiware.smartcity.helloheremaps;
+package hmi.parkinglot.helloheremaps;
 
 import org.junit.Test;
 

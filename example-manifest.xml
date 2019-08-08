@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fiware.smartcity" >
+    package="hmi.parkinglot" >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -18,7 +18,7 @@
         android:theme="@android:style/Theme.DeviceDefault">
 
         <activity
-            android:name="fiware.smartcity.MainActivity"
+            android:name="hmi.parkinglot.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar">

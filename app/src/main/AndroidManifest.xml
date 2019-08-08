@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fiware.smartcity" >
+    xmlns:tools="http://schemas.android.com/tools"
+    package="hmi.parkinglot" >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -15,10 +16,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault">
+        android:theme="@android:style/Theme.DeviceDefault"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name="fiware.smartcity.MainActivity"
+            android:name="hmi.parkinglot.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar">
@@ -41,13 +43,10 @@
 
         <meta-data
             android:name="com.here.android.maps.appid"
-            android:value="NRKkxH8Z90CPwRFMzoSJ" />
+            android:value="LANR06UPwAquTWdWe6pP" />
         <meta-data
             android:name="com.here.android.maps.apptoken"
-            android:value="spIRDN438sdo0pgJU-qblg" />
-        <meta-data
-            android:name="com.here.android.maps.license.key"
-            android:value="XPU7hpCVi+rQUxA4q9gfQmkuOPe63PBOTvZISVpeuuaXHr2jXIX6QHKob4XsnOLE3F0AYJLX/dwC0QV2Erv0r/QIkB+nKZT6TYhNxDF/0vNz6CnSG+6wyRmnKbwqukENtL/cYMSrHkO059d+uAs7B0PFRsoL3GQASZdbMFK3oKbDGAx8SrZ0VLjrNNV15jnuYnQUNPSN3N99cY6+0gRtlHRB9NiCc0ZmtuqsDlPUJElLYmnotpRpC75PorLFq7k6EiKXk/XuQphT2Za8oaN7NtH5HbPSo6lcJhwu1I94A69qMk8f7kKrzX39ySHy0i1ttMHf0XUgOUYfOjZG9uGSotuf9XBAYWrNyF8DrmGSrjIuLifh4I16ECnyY4fzYwmP3U6N5YmAVVVgPUhznRwcrKLQp9bFygCzh4zvA9Pae2qdcmUYA5QZpyvsD9sfYibfMAfi48xI7GfG3vdzqFOcFGPicvKwhaA3p7Av/csVjvCSLwbxFIjJXb2m+70d4p1eoTDXYk7ckWFMvVenlBcwwdh9/daYPRrkSx2YI58oM/hF8sJGadH2qOkFH/dzbRzbKc7pJA+7POE7cV/24ywKHSYsocSh1eiiggKjteE4qMfsE1w1HQV3uQRLHoNke7eElMbzWm60SkLoaU8NbjF+zwlolCJExmZidygawpn6pO4=" />
+            android:value="6BAfgVwQMjENQD2NNQ5cbw" />
     </application>
 
 </manifest>
