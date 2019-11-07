@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         if(underSimulation) {
             if(navMan != null) {
-                navMan.setVoiceSkin(voiceSkin);
+//                navMan.setVoiceSkin(voiceSkin);
             }
         }
     }
@@ -570,8 +570,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onEngineInitializationCompleted(OnEngineInitListener.Error error) {
                 if (error == OnEngineInitListener.Error.NONE) {
-                    Log.d(Application.TAG, "Version: " + Version.SDK_API_INT);
-                    mapFragment.getMapGesture().addOnGestureListener(gestureListener);
+                    Log.d(Application.TAG, "Version: " + Version.getSdkVersion());
+                    mapFragment.getMapGesture().addOnGestureListener(gestureListener, 0, true);
 
                     // retrieve a reference of the map from the map fragment
                     map = mapFragment.getMap();
@@ -1401,7 +1401,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mapLayout.requestLayout();
         mapLayout.getParent().requestLayout();
 
-        RouteTta tta = routeData.route.getTta(Route.TrafficPenaltyMode.DISABLED, 0);
+        RouteTta tta = routeData.route.getTtaExcludingTraffic(0);
         int duration = tta.getDuration();
         Date date = new Date();
         date.setTime(date.getTime() + duration * 1000);
@@ -1455,7 +1455,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         navMan.setMapUpdateMode(NavigationManager.MapUpdateMode.POSITION_ANIMATION);
 
         if(voiceSkin != null) {
-            navMan.setVoiceSkin(voiceSkin);
+//            navMan.setVoiceSkin(voiceSkin);
         }
 
         // We set this variable to avoid nay kind of request before the area request

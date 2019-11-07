@@ -43,10 +43,13 @@
 
         <meta-data
             android:name="com.here.android.maps.appid"
-            android:value="LANR06UPwAquTWdWe6pP" />
+            android:value="@string/here_app_id" />
         <meta-data
             android:name="com.here.android.maps.apptoken"
-            android:value="6BAfgVwQMjENQD2NNQ5cbw" />
+            android:value="@string/here_app_code" />
+        <meta-data
+            android:name="com.here.android.maps.license.key"
+            android:value="@string/here_app_license_key" />
     </application>
 
 </manifest>

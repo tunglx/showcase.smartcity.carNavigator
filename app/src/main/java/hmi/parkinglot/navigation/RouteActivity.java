@@ -29,14 +29,17 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.here.android.mpa.common.GeoCoordinate;
-import com.here.android.mpa.routing.RouteManager;
+import com.here.android.mpa.routing.CoreRouter;
 import com.here.android.mpa.routing.RouteOptions;
 import com.here.android.mpa.routing.RoutePlan;
 import com.here.android.mpa.routing.RouteResult;
+import com.here.android.mpa.routing.RouteWaypoint;
+import com.here.android.mpa.routing.RoutingError;
 import com.here.android.mpa.search.DiscoveryResult;
 import com.here.android.mpa.search.DiscoveryResultPage;
 import com.here.android.mpa.search.ErrorCode;
 import com.here.android.mpa.search.GeocodeRequest;
+import com.here.android.mpa.search.GeocodeResult;
 import com.here.android.mpa.search.PlaceLink;
 import com.here.android.mpa.search.ResultListener;
 import com.here.android.mpa.search.ReverseGeocodeRequest2;
@@ -56,9 +59,7 @@ import hmi.parkinglot.MainActivity;
 import hmi.parkinglot.R;
 
 /**
- *  Route Wizard
- *
- *
+ * Route Wizard
  */
 public class RouteActivity implements LocationListener {
     private static int GEOCODE_SEARCH_AREA = 6000;
@@ -72,7 +73,7 @@ public class RouteActivity implements LocationListener {
     private ArrayAdapter<String> destinationAdapter;
     private List<String> optionList1 = new ArrayList<String>();
     private List<String> optionList2 = new ArrayList<String>();
-    private static String[] CITIES = new String[] {
+    private static String[] CITIES = new String[]{
             "Oporto",
             "Guadalajara",
             "Valencia",
@@ -85,25 +86,25 @@ public class RouteActivity implements LocationListener {
             "Madrid",
             "Antwerp"
     };
-    private static double[][] CITY_COORDS = new double[][] {
-            { 41.14946, -8.61031 },
-            { 40.63018, -3.16446 },
-            { 39.46868, -0.37691 },
-            { 41.38561, 2.16873 },
-            { 40.64123, -8.65391 },
-            { 52.3731, 4.89329 },
-            { 43.4666, -3.79998 },
-            { 37.3879, -6.00198 },
-            { 36.71667, -4.41668 },
-            { 40.42028, -3.70578 },
-            { 51.2222881,4.3909183 }
+    private static double[][] CITY_COORDS = new double[][]{
+            {41.14946, -8.61031},
+            {40.63018, -3.16446},
+            {39.46868, -0.37691},
+            {41.38561, 2.16873},
+            {40.64123, -8.65391},
+            {52.3731, 4.89329},
+            {43.4666, -3.79998},
+            {37.3879, -6.00198},
+            {36.71667, -4.41668},
+            {40.42028, -3.70578},
+            {51.2222881, 4.3909183}
     };
 
     public static Map<String, double[]> cityCoords = new HashMap<>();
 
     static {
-        for(int j = 0; j < CITIES.length; j++) {
-          cityCoords.put(CITIES[j], CITY_COORDS[j]);
+        for (int j = 0; j < CITIES.length; j++) {
+            cityCoords.put(CITIES[j], CITY_COORDS[j]);
         }
     }
 
@@ -123,7 +124,7 @@ public class RouteActivity implements LocationListener {
         activity = Application.mainActivity;
 
         x = activity.getResources().getDrawable(R.drawable.clear);
-        x.setBounds(0, 0,50, 50);
+        x.setBounds(0, 0, 50, 50);
 
         y = activity.getResources().getDrawable(R.drawable.search);
         y.setBounds(0, 0, 50, 50);
@@ -151,10 +152,10 @@ public class RouteActivity implements LocationListener {
         originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Santander"));
         origin.setText(prefs.getString(Application.LAST_ORIGIN, Application.EMPTY_STR));
 
-        if(routeData.originCity.length() > 0) {
+        if (routeData.originCity.length() > 0) {
             originCity.setText(routeData.originCity);
         }
-        if(routeData.origin.length() > 0) {
+        if (routeData.origin.length() > 0) {
             origin.setText(routeData.origin);
         }
 
@@ -173,7 +174,7 @@ public class RouteActivity implements LocationListener {
         setAutoCompleteHandlerDestination();
 
         // By default dest city equal to the origin city
-        if(city.getText().length() == 0) {
+        if (city.getText().length() == 0) {
             city.setText(routeData.originCity);
             routeData.city = routeData.originCity;
         }
@@ -192,18 +193,18 @@ public class RouteActivity implements LocationListener {
         Scene scene1 = Scene.getSceneForLayout(routeContainer, R.layout.activity_route_3, activity);
         TransitionManager.go(scene1);
 
-        Spinner sp = (Spinner)activity.findViewById(R.id.parkingDistance);
+        Spinner sp = (Spinner) activity.findViewById(R.id.parkingDistance);
         int position = (routeData.parkingDistance - 400) / 100;
         sp.setSelection(position);
 
-        CheckBox cb = (CheckBox)activity.findViewById(R.id.chkIndoor);
-        CheckBox cb2 = (CheckBox)activity.findViewById(R.id.chkOutdoor);
+        CheckBox cb = (CheckBox) activity.findViewById(R.id.chkIndoor);
+        CheckBox cb2 = (CheckBox) activity.findViewById(R.id.chkOutdoor);
 
-        if(routeData.parkingCategory.contains("StreetParking")) {
+        if (routeData.parkingCategory.contains("StreetParking")) {
             cb2.setChecked(true);
         }
 
-        if(routeData.parkingCategory.contains("ParkingLot")) {
+        if (routeData.parkingCategory.contains("ParkingLot")) {
             cb.setChecked(true);
         }
 
@@ -215,14 +216,14 @@ public class RouteActivity implements LocationListener {
 
     private void setupHeader(int step) {
         Toolbar myToolbar = (Toolbar) activity.findViewById(R.id.my_toolbar);
-        ((AppCompatActivity)activity).setSupportActionBar(myToolbar);
+        ((AppCompatActivity) activity).setSupportActionBar(myToolbar);
 
-        ((AppCompatActivity)activity).getSupportActionBar().setTitle("Route Planning " + step + "/3");
-        ((AppCompatActivity)activity).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) activity).getSupportActionBar().setTitle("Route Planning " + step + "/3");
+        ((AppCompatActivity) activity).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void setupNextEventHandler() {
-        nextButton = ((Button)activity.findViewById(R.id.nextButton1));
+        nextButton = ((Button) activity.findViewById(R.id.nextButton1));
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,14 +234,14 @@ public class RouteActivity implements LocationListener {
 
     private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
         @Override
-        public void onItemClick (AdapterView<?> parent, View view, int position, long id) {
-            InputMethodManager mgr = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            InputMethodManager mgr = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             mgr.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
         }
     };
 
     private void setupAutoComplateHandlerParking() {
-        AutoCompleteTextView vehicle = (AutoCompleteTextView)activity.findViewById(R.id.vehicleInput);
+        AutoCompleteTextView vehicle = (AutoCompleteTextView) activity.findViewById(R.id.vehicleInput);
 
         String[] vehicles = activity.getResources().getStringArray(R.array.Vehicles);
         ArrayAdapter adapter = new ArrayAdapter<String>(activity,
@@ -258,8 +259,8 @@ public class RouteActivity implements LocationListener {
     }
 
     private void setAutoCompleteHandlerOrigin() {
-        origin = (AutoCompleteTextView)activity.findViewById(R.id.editText);
-        originCity = (AutoCompleteTextView)activity.findViewById(R.id.originCityInput);
+        origin = (AutoCompleteTextView) activity.findViewById(R.id.editText);
+        originCity = (AutoCompleteTextView) activity.findViewById(R.id.originCityInput);
 
         originAdapter = new ArrayAdapter<String>(activity,
                 android.R.layout.simple_dropdown_item_1line, optionList1);
@@ -299,7 +300,7 @@ public class RouteActivity implements LocationListener {
     }
 
     private void setAutoCompleteHandlerDestination() {
-        destination = (AutoCompleteTextView)activity.findViewById(R.id.editText2);
+        destination = (AutoCompleteTextView) activity.findViewById(R.id.editText2);
         destinationAdapter = new ArrayAdapter<String>(activity,
                 android.R.layout.simple_dropdown_item_1line, optionList2);
         destination.setAdapter(destinationAdapter);
@@ -310,7 +311,7 @@ public class RouteActivity implements LocationListener {
 
         destination.setOnItemClickListener(itemClickListener);
 
-        city = (AutoCompleteTextView)activity.findViewById(R.id.cityInput);
+        city = (AutoCompleteTextView) activity.findViewById(R.id.cityInput);
         ArrayAdapter cityAdapter = new ArrayAdapter<String>(activity,
                 android.R.layout.simple_dropdown_item_1line, cityList);
         city.setAdapter(cityAdapter);
@@ -333,17 +334,15 @@ public class RouteActivity implements LocationListener {
     }
 
     public void back() {
-        if(currentStep.equals("Origin")) {
+        if (currentStep.equals("Origin")) {
             currentStep = "";
-            ((MainActivity)activity).onRouteCanceled();
-        }
-        else if(currentStep.equals("Destination")) {
+            ((MainActivity) activity).onRouteCanceled();
+        } else if (currentStep.equals("Destination")) {
             routeData.city = city.getText().toString();
             routeData.destination = destination.getText().toString();
             currentStep = "Origin";
             goToOriginStep();
-        }
-        else if(currentStep.equals("Parking")) {
+        } else if (currentStep.equals("Parking")) {
             currentStep = "Destination";
 
             fillParkingPreferences();
@@ -357,18 +356,16 @@ public class RouteActivity implements LocationListener {
             routeData.originCity = originCity.getText().toString();
             currentStep = "Destination";
             goToDestinationStep();
-        }
-        else if(currentStep.equals("Destination")) {
+        } else if (currentStep.equals("Destination")) {
             routeData.destination = destination.getText().toString();
             routeData.city = city.getText().toString();
             currentStep = "Parking";
             goToParkingStep();
-        }
-        else if(currentStep.equals("Parking")) {
-             fillParkingPreferences();
+        } else if (currentStep.equals("Parking")) {
+            fillParkingPreferences();
 
-             progress = ProgressDialog.show(activity, "Route Calculation",
-                     "We are calculating a route", true);
+            progress = ProgressDialog.show(activity, "Route Calculation",
+                    "We are calculating a route", true);
             calculateRoute();
         }
     }
@@ -376,22 +373,22 @@ public class RouteActivity implements LocationListener {
     private void fillParkingPreferences() {
         routeData.parkingCategory.clear();
 
-        Spinner sp = (Spinner)activity.findViewById(R.id.parkingDistance);
+        Spinner sp = (Spinner) activity.findViewById(R.id.parkingDistance);
         int selectedVal = activity.getResources().
                 getIntArray(R.array.distance_array_values)[sp.getSelectedItemPosition()];
 
         routeData.parkingDistance = selectedVal;
 
-        CheckBox cb = (CheckBox)activity.findViewById(R.id.chkIndoor);
-        if(cb.isChecked()) {
+        CheckBox cb = (CheckBox) activity.findViewById(R.id.chkIndoor);
+        if (cb.isChecked()) {
             routeData.parkingCategory.add("ParkingLot");
         }
-        CheckBox cb2 = (CheckBox)activity.findViewById(R.id.chkOutdoor);
-        if(cb2.isChecked()) {
+        CheckBox cb2 = (CheckBox) activity.findViewById(R.id.chkOutdoor);
+        if (cb2.isChecked()) {
             routeData.parkingCategory.add("StreetParking");
         }
 
-        AutoCompleteTextView vehicle = (AutoCompleteTextView)activity.findViewById(R.id.vehicleInput);
+        AutoCompleteTextView vehicle = (AutoCompleteTextView) activity.findViewById(R.id.vehicleInput);
         routeData.vehicle = vehicle.getText().toString();
     }
 
@@ -405,7 +402,7 @@ public class RouteActivity implements LocationListener {
     public void onLocationReady(GeoCoordinate coords) {
         locationProgress.dismiss();
 
-        if(coords != null) {
+        if (coords != null) {
             ReverseGeocodeRequest2 req = new ReverseGeocodeRequest2(coords);
             req.execute(new ResultListener<Location>() {
                 @Override
@@ -439,52 +436,50 @@ public class RouteActivity implements LocationListener {
             }
             return false;
         }
-    };
+    }
+
+    ;
 
     private void doCalculateRoute(GeoCoordinate start, GeoCoordinate end) {
         // Initialize RouteManager
-        RouteManager routeManager = new RouteManager();
+        CoreRouter routeManager = new CoreRouter();
 
         // 3. Select routing options via RoutingMode
-        RoutePlan routePlan = new RoutePlan();
+        final RoutePlan routePlan = new RoutePlan();
         RouteOptions routeOptions = new RouteOptions();
         routeOptions.setTransportMode(RouteOptions.TransportMode.CAR);
         routeOptions.setRouteType(RouteOptions.Type.FASTEST);
         routePlan.setRouteOptions(routeOptions);
 
-        routePlan.addWaypoint(start);
-        routePlan.addWaypoint(end);
+        routePlan.addWaypoint(new RouteWaypoint(start));
+        routePlan.addWaypoint(new RouteWaypoint(end));
 
         // Retrieve Routing information via RouteManagerListener
-        RouteManager.Error error =
-                routeManager.calculateRoute(routePlan, new RouteManager.Listener() {
-                    @Override
-                    public void onCalculateRouteFinished(RouteManager.Error errorCode, List<RouteResult> result) {
-                        if (errorCode == RouteManager.Error.NONE && result.get(0).getRoute() != null) {
-                            routeData.route = result.get(0).getRoute();
-                            progress.dismiss();
-                            ((MainActivity)activity).onRouteReady(routeData);
-                        }
-                        else {
-                            Alert.show(activity.getApplicationContext(), "Error while obtaining route");
-                        }
-                    }
+        routeManager.calculateRoute(routePlan, new CoreRouter.Listener() {
+            @Override
+            public void onCalculateRouteFinished(List<RouteResult> list, RoutingError routingError) {
+                if (routingError == RoutingError.NONE && list.get(0).getRoute() != null) {
+                    routeData.route = list.get(0).getRoute();
+                    progress.dismiss();
+                    ((MainActivity) activity).onRouteReady(routeData);
+                } else {
+                    Alert.show(activity.getApplicationContext(), "Error while obtaining route");
+                    Log.e("FIWARE-HERE", "Error while obtaining route: " + routingError);
+                }
+            }
 
-                    public void onProgress(int progress) {
+            @Override
+            public void onProgress(int i) {
 
-                    }
-                });
-
-        if (error != RouteManager.Error.NONE) {
-            Log.e("FIWARE-HERE", "Error while obtaining route: " + error);
-        }
+            }
+        });
     }
 
     private Handler UIHandler = new Handler(Looper.getMainLooper()) {
         public void handleMessage(Message inputMessage) {
-            if(inputMessage.what == -1) {
-                if(progress != null) {
-                  progress.dismiss();
+            if (inputMessage.what == -1) {
+                if (progress != null) {
+                    progress.dismiss();
                 }
 
                 Toast.makeText(Application.mainActivity.getApplicationContext(),
@@ -495,13 +490,12 @@ public class RouteActivity implements LocationListener {
 
     private void geoCodeLocation(String locationStr, GeoCoordinate center,
                                  final ResultListener<GeoCoordinate> listener) {
-      if(locationStr.indexOf(",") == -1) {
-          // It seems to be a POI. issuing search request
-          searchLocation(locationStr, center, listener);
-      }
-      else {
-          getCoordinatesFor(locationStr, center, listener);
-      }
+        if (locationStr.indexOf(",") == -1) {
+            // It seems to be a POI. issuing search request
+            searchLocation(locationStr, center, listener);
+        } else {
+            getCoordinatesFor(locationStr, center, listener);
+        }
     }
 
     private void searchLocation(String locationStr, GeoCoordinate center,
@@ -521,8 +515,7 @@ public class RouteActivity implements LocationListener {
                             listener.onCompleted(placeLink.getPosition(), errorCode);
                         }
                     }
-                }
-                else {
+                } else {
                     listener.onCompleted(null, errorCode);
                 }
             }
@@ -533,10 +526,12 @@ public class RouteActivity implements LocationListener {
                                    final ResultListener<GeoCoordinate> listener) {
         GeocodeRequest req1 = new GeocodeRequest(locationStr);
         req1.setSearchArea(center, GEOCODE_SEARCH_AREA);
-        req1.execute(new ResultListener<List<Location>>() {
-            public void onCompleted(List<Location> data, ErrorCode errorCode) {
-                if (errorCode == ErrorCode.NONE && data != null && data.size() > 0) {
-                    listener.onCompleted(data.get(0).getCoordinate(), errorCode);
+        req1.execute(new ResultListener<List<GeocodeResult>>() {
+            @Override
+            public void onCompleted(List<GeocodeResult> geocodeResults, ErrorCode errorCode) {
+                if (errorCode == ErrorCode.NONE && geocodeResults != null && geocodeResults.size() > 0) {
+                    Location location = geocodeResults.get(0).getLocation();
+                    listener.onCompleted(location.getCoordinate(), errorCode);
                 } else {
                     listener.onCompleted(null, errorCode);
                 }
@@ -551,7 +546,7 @@ public class RouteActivity implements LocationListener {
 
     private void calculateRoute() {
         SharedPreferences.Editor edit = Application.mainActivity.
-                                    getPreferences(Activity.MODE_WORLD_WRITEABLE).edit();
+                getPreferences(Activity.MODE_WORLD_WRITEABLE).edit();
         edit.putString(Application.LAST_CITY_VISITED, routeData.city);
         edit.putString(Application.LAST_ORIGIN, routeData.origin);
         edit.putString(Application.LAST_DESTINATION, routeData.destination);
@@ -572,22 +567,19 @@ public class RouteActivity implements LocationListener {
                     geoCodeLocation(destinationStr, destCoordinates, new ResultListener<GeoCoordinate>() {
                         @Override
                         public void onCompleted(GeoCoordinate geoCoordinate, ErrorCode errorCode) {
-                            if(errorCode == ErrorCode.NONE) {
+                            if (errorCode == ErrorCode.NONE) {
                                 routeData.destinationCoordinates = geoCoordinate;
                                 if (routeData.originCoordinates != null && routeData.destinationCoordinates != null) {
                                     doCalculateRoute(routeData.originCoordinates, routeData.destinationCoordinates);
-                                }
-                                else {
+                                } else {
                                     notifyErrorToUI();
                                 }
-                            }
-                            else {
+                            } else {
                                 notifyErrorToUI();
                             }
                         }
                     });
-                }
-                else {
+                } else {
                     notifyErrorToUI();
                 }
             }
@@ -596,33 +588,30 @@ public class RouteActivity implements LocationListener {
 
     private void checkNextButton(AutoCompleteTextView view) {
         if (currentStep.equals("Origin")) {
-            if(origin.getText().length() > 0 && originCity.getText().length() > 0) {
+            if (origin.getText().length() > 0 && originCity.getText().length() > 0) {
                 nextButton.setEnabled(true);
-            }
-            else {
+            } else {
                 nextButton.setEnabled(false);
             }
 
             // If city changes then address is reset
-            if(originCity.getText().length() == 0 && origin.getText().length() > 0) {
+            if (originCity.getText().length() == 0 && origin.getText().length() > 0) {
                 origin.setText("");
             }
-            if(view != null && view.getId() == R.id.originCityInput) {
+            if (view != null && view.getId() == R.id.originCityInput) {
                 origin.setText("");
             }
-        }
-        else if(currentStep.equals("Destination")) {
-            if(city.getText().length() > 0 && destination.getText().length() > 0) {
+        } else if (currentStep.equals("Destination")) {
+            if (city.getText().length() > 0 && destination.getText().length() > 0) {
                 nextButton.setEnabled(true);
-            }
-            else {
+            } else {
                 nextButton.setEnabled(false);
             }
 
-            if(city.getText().length() == 0 && destination.getText().length() > 0) {
+            if (city.getText().length() == 0 && destination.getText().length() > 0) {
                 destination.setText("");
             }
-            if(view != null && view.getId() == R.id.cityInput) {
+            if (view != null && view.getId() == R.id.cityInput) {
                 destination.setText("");
             }
         }
@@ -633,7 +622,7 @@ public class RouteActivity implements LocationListener {
         double[] coords = cityCoords.get(city);
         GeoCoordinate geoCoordinates = MainActivity.DEFAULT_COORDS;
 
-        if(coords != null) {
+        if (coords != null) {
             geoCoordinates = new GeoCoordinate(coords[0], coords[1]);
         }
 
@@ -644,7 +633,7 @@ public class RouteActivity implements LocationListener {
         private AutoCompleteTextView view;
         private ArrayAdapter<String> adapter;
         // Previous text
-        private String lastKnownInput   = "";
+        private String lastKnownInput = "";
         private String lastRequestQuery = "";
         private boolean pendingRequest = false;
 
@@ -668,12 +657,11 @@ public class RouteActivity implements LocationListener {
 
             String scity = "";
             GeoCoordinate searchCenter = MainActivity.DEFAULT_COORDS;
-            if(view.getTag() != null && view.getTag().equals("originAddress")) {
+            if (view.getTag() != null && view.getTag().equals("originAddress")) {
                 scity = originCity.getText().toString();
 
-            }
-            else {
-                if(view.getTag() != null && view.getTag().equals("destAddress")) {
+            } else {
+                if (view.getTag() != null && view.getTag().equals("destAddress")) {
                     scity = city.getText().toString();
                 }
             }
@@ -700,8 +688,7 @@ public class RouteActivity implements LocationListener {
                     adapter.notifyDataSetChanged();
                     pendingRequest = false;
                 }
-            }
-            else {
+            } else {
                 executeSearch(lastKnownInput);
             }
         }
@@ -713,8 +700,8 @@ public class RouteActivity implements LocationListener {
 
             checkNextButton(view);
 
-            String tag = (String)view.getTag();
-            if(tag == null || tag.indexOf("Address") == -1) {
+            String tag = (String) view.getTag();
+            if (tag == null || tag.indexOf("Address") == -1) {
                 return;
             }
 
@@ -725,7 +712,7 @@ public class RouteActivity implements LocationListener {
             }
 
             // Nothing is done if text refines previous text
-            if(s.length() >= 4) {
+            if (s.length() >= 4) {
                 executeSearch(s.toString());
             }
         }
@@ -734,5 +721,7 @@ public class RouteActivity implements LocationListener {
         public void afterTextChanged(Editable s) {
 
         }
-    };
+    }
+
+    ;
 }

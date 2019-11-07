@@ -307,7 +307,7 @@ public class Utilities {
     public static void showBubble(MapMarker marker) {
         DateTime now = DateTime.now();
         if (now.getMillis() - Application.lastTimeBubble > 3 * 1000) {
-            marker.showInfoBubble();
+//            marker.showInfoBubble();
             Application.lastTimeBubble = now.getMillis();
         }
     }

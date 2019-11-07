@@ -130,11 +130,11 @@ public class AmbientAreaRenderer implements CityDataListener {
                     GeoCoordinate coords = new GeoCoordinate(ambientArea.location[0],
                             ambientArea.location[1]); */
 
-                    PointF f = hereMap.geoToPixel(currentPos);
-                    f.offset(100, 50);
-                    GeoCoordinate coords = hereMap.pixelToGeo(f);
+//                    PointF f = hereMap.geoToPixel(currentPos);
+//                    f.offset(100, 50);
+//                    GeoCoordinate coords = hereMap.pixelToGeo(f);
 
-                    MapMarker marker = Utilities.buildSensorMarker(coords, "Air Quality",
+                    MapMarker marker = Utilities.buildSensorMarker(currentPos, "Air Quality",
                             data.asString);
 
                     hereMap.addMapObject(marker);
