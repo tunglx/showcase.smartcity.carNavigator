@@ -13,7 +13,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -45,7 +45,7 @@ import com.here.android.mpa.guidance.NavigationManager;
 import com.here.android.mpa.guidance.VoiceCatalog;
 import com.here.android.mpa.guidance.VoiceSkin;
 import com.here.android.mpa.mapping.Map;
-import com.here.android.mpa.mapping.MapFragment;
+import com.here.android.mpa.mapping.AndroidXMapFragment;
 import com.here.android.mpa.mapping.MapGesture;
 import com.here.android.mpa.mapping.MapMarker;
 import com.here.android.mpa.mapping.MapObject;
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     // map embedded in the map fragment
     private Map map = null;
     // map fragment embedded in this activity
-    private MapFragment mapFragment = null;
+    private AndroidXMapFragment mapFragment = null;
 
     private ImageButton locationButton, menuButton;
     private ImageView fiwareImage, councilLogo;
@@ -564,11 +564,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         hideNavigationUI();
 
         // Search for the map fragment to finish setup by calling init().
-        mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.mapfragment);
+        mapFragment = (AndroidXMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapfragment);
 
         mapFragment.init(new OnEngineInitListener() {
             @Override
             public void onEngineInitializationCompleted(OnEngineInitListener.Error error) {
+                Log.d(Application.TAG, "error " + error);
                 if (error == OnEngineInitListener.Error.NONE) {
                     Log.d(Application.TAG, "Version: " + Version.getSdkVersion());
                     mapFragment.getMapGesture().addOnGestureListener(gestureListener, 0, true);
@@ -577,7 +578,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     map = mapFragment.getMap();
                     // Oporto downtown
                     String city =
-                            getPreferences(MODE_WORLD_READABLE).getString(
+                            getPreferences(MODE_PRIVATE).getString(
                                     Application.LAST_CITY_VISITED, "Santander");
                     double[] coords = RouteActivity.cityCoords.get(city);
                     DEFAULT_COORDS = new GeoCoordinate(coords[0], coords[1]);

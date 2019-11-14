@@ -80,7 +80,7 @@
                 android:layout_height="fill_parent">
             <!-- Map Fragment embedded with the map object -->
                 <fragment
-                    android:name="com.here.android.mpa.mapping.MapFragment"
+                    android:name="com.here.android.mpa.mapping.AndroidXMapFragment"
                     android:id="@+id/mapfragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

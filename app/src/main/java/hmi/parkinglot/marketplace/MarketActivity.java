@@ -6,8 +6,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.transition.Scene;
 import android.transition.TransitionManager;
 import android.view.View;
@@ -17,7 +17,6 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import hmi.parkinglot.Application;

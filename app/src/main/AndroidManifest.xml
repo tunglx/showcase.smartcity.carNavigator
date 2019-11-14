@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="hmi.parkinglot" >
+    package="hmi.parkinglot">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -34,10 +34,9 @@
             android:name="com.here.android.mpa.service.MapService"
             android:exported="true"
             android:label="HereMapService"
-            android:process="global.Here.Map.Service.v2" >
+            android:process="global.Here.Map.Service.v3">
             <intent-filter>
-                <action android:name="com.here.android.mpa.service.MapService" >
-                </action>
+                <action android:name="com.here.android.mpa.service.MapService.v3"></action>
             </intent-filter>
         </service>
 
