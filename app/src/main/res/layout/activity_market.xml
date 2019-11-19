@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_marginLeft="0dp"
     android:layout_marginTop="0dp"
-    android:background="@color/white"
-    >
+    android:background="@color/white">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
@@ -26,8 +23,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-            </androidx.appcompat.widget.Toolbar>
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"></androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -38,20 +34,20 @@
             <WebView
                 android:id="@+id/market"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
             <RelativeLayout
                 android:id="@+id/spinner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:background="#80ffffff">
+                android:background="#80ffffff"
+                android:gravity="center">
 
                 <ProgressBar
+                    style="@android:style/Widget.ProgressBar.Large"
                     android:layout_width="50dp"
                     android:layout_height="match_parent"
-                    android:background="@android:color/transparent"
-                    style="@android:style/Widget.ProgressBar.Large" />
+                    android:background="@android:color/transparent" />
             </RelativeLayout>
         </FrameLayout>
 

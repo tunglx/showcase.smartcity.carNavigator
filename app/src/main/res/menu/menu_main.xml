@@ -1,50 +1,59 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
 
     <group android:id="@+id/initialGroup">
-        <item android:id="@+id/action_home"
-            android:title="Home"
+        <item
+            android:id="@+id/action_home"
             android:orderInCategory="50"
+            android:title="Home"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_simulate"
-            android:title="Simulate Route"
+        <item
+            android:id="@+id/action_simulate"
             android:orderInCategory="100"
+            android:title="Simulate Route"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_plan"
-            android:title="Plan Route"
+        <item
+            android:id="@+id/action_plan"
             android:orderInCategory="200"
+            android:title="Plan Route"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_loop"
-            android:title="Loop Route"
+        <item
+            android:id="@+id/action_loop"
             android:orderInCategory="300"
+            android:title="Loop Route"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_market"
-            android:title="Data Marketplace"
+        <item
+            android:id="@+id/action_market"
             android:orderInCategory="400"
+            android:title="Data Marketplace"
             app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/simulationGroup">
-        <item android:id="@+id/action_pause"
-            android:title="Pause Simulation"
+        <item
+            android:id="@+id/action_pause"
             android:orderInCategory="400"
+            android:title="Pause Simulation"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_terminate"
-            android:title="Terminate Simulation"
+        <item
+            android:id="@+id/action_terminate"
             android:orderInCategory="500"
+            android:title="Terminate Simulation"
             app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/restartGroup">
-        <item android:id="@+id/action_restart"
-            android:title="Restart Simulation"
+        <item
+            android:id="@+id/action_restart"
             android:orderInCategory="600"
+            android:title="Restart Simulation"
             app:showAsAction="never" />
     </group>
 </menu>

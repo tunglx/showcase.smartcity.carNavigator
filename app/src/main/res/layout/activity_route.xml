@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_marginLeft="0dp"
     android:layout_marginTop="0dp"
-    android:background="@color/white"
-    >
+    android:background="@color/white">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
@@ -30,18 +27,16 @@
 
 
         <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Origin"
-            android:id="@+id/textView"
-            android:textColor="@color/light_blue"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:textStyle="bold"
-           >
-        </TextView>
+            android:text="Origin"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/light_blue"
+            android:textStyle="bold"></TextView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,78 +51,75 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/cityLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="City"
-                    android:id="@+id/cityLabel"
-                    android:textColor="@color/light_blue"
                     android:layout_gravity="center_horizontal|left"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin" />
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:text="City"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/light_blue" />
 
                 <AutoCompleteTextView
+                    android:id="@+id/originCityInput"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPostalAddress"
-                    android:ems="10"
-                    android:hint="Enter City Name"
-                    android:id="@+id/originCityInput"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin">
-                </AutoCompleteTextView>
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:ems="10"
+                    android:hint="Enter City Name"
+                    android:inputType="textPostalAddress"></AutoCompleteTextView>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Address"
-                    android:textColor="@color/light_blue"
                     android:layout_gravity="center_horizontal|left"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin" />
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:text="Address"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/light_blue" />
 
                 <AutoCompleteTextView
+                    android:id="@+id/editText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPostalAddress"
-                    android:ems="10"
-                    android:id="@+id/editText"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:ems="10"
                     android:hint="Enter Address"
-                    android:tag="originAddress">
-                </AutoCompleteTextView>
+                    android:inputType="textPostalAddress"
+                    android:tag="originAddress"></AutoCompleteTextView>
 
                 <Button
-                    android:layout_width="450dip"
-                    android:layout_height="wrap_content"
-                    android:text="Next"
                     android:id="@+id/nextButton1"
                     style="@style/btnStyleShakespeare"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:drawableLeft="@drawable/next2"
-                    />
+                    android:text="Next" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dip"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_marginTop="80dp"
                 android:layout_weight="10"
-                android:layout_marginTop="80dp">
+                android:orientation="vertical">
 
                 <ImageButton
+                    android:id="@+id/currentLocButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
+                    android:background="@null"
                     android:cropToPadding="false"
                     android:scaleType="fitXY"
-                    android:id="@+id/currentLocButton"
-                    android:src="@drawable/current_location2"
-                    android:background="@null"/>
+                    android:src="@drawable/current_location2" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

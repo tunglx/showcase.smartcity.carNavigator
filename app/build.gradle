@@ -30,8 +30,10 @@ dependencies {
     implementation(name:'HERE-sdk', ext:'aar')
     implementation files('libs/HERE-sdk-javadoc.jar')
 //    implementation files('libs/httpclient-android-4.3.5-javadoc.jar')
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'joda-time:joda-time:2.8.2'
+    implementation 'com.github.anrwatchdog:anrwatchdog:1.4.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }

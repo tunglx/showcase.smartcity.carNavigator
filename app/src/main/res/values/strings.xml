@@ -66,7 +66,7 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
 
-   <string name="spinner_prompt">Select</string>
+    <string name="spinner_prompt">Select</string>
 
     <string-array name="distance_array">
         <item>400 M</item>

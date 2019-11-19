@@ -8,8 +8,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Scene;
@@ -74,30 +76,30 @@ public class RouteActivity implements LocationListener {
     private List<String> optionList1 = new ArrayList<String>();
     private List<String> optionList2 = new ArrayList<String>();
     private static String[] CITIES = new String[]{
-            "Oporto",
-            "Guadalajara",
-            "Valencia",
-            "Barcelona",
-            "Aveiro",
-            "Amsterdam",
-            "Santander",
-            "Sevilla",
-            "Málaga",
-            "Madrid",
-            "Antwerp"
+            "Ho Chi Minh City",
+            "Ha Noi",
+            "Hai Phong",
+            "Can Tho",
+            "Da Nang",
+            "Hue",
+            "Quy Nhon",
+            "Hiep Hoa",
+            "Phu Vinh",
+            "Thai Nguyen",
+            "Nha Trang"
     };
     private static double[][] CITY_COORDS = new double[][]{
-            {41.14946, -8.61031},
-            {40.63018, -3.16446},
-            {39.46868, -0.37691},
-            {41.38561, 2.16873},
-            {40.64123, -8.65391},
-            {52.3731, 4.89329},
-            {43.4666, -3.79998},
-            {37.3879, -6.00198},
-            {36.71667, -4.41668},
-            {40.42028, -3.70578},
-            {51.2222881, 4.3909183}
+            {10.776577, 106.70085},
+            {21.028167, 105.854152},
+            {20.864807, 106.683449},
+            {10.037105, 105.788249},
+            {16.074806, 108.223958},
+            {16.461901, 107.595458},
+            {13.768898, 109.228563},
+            {10.933333, 106.833333},
+            {18.716667, 105.7},
+            {21.59422, 105.848172},
+            {12.248089, 109.19436}
     };
 
     public static Map<String, double[]> cityCoords = new HashMap<>();
@@ -149,7 +151,7 @@ public class RouteActivity implements LocationListener {
 
         SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_WORLD_READABLE);
 
-        originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Santander"));
+        originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Ha Noi"));
         origin.setText(prefs.getString(Application.LAST_ORIGIN, Application.EMPTY_STR));
 
         if (routeData.originCity.length() > 0) {

@@ -32,6 +32,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.anrwatchdog.ANRWatchDog;
 import com.here.android.mpa.common.GeoBoundingBox;
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPolygon;
@@ -502,6 +503,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         super.onCreate(savedInstanceState);
         Application.mainActivity = this;
+        new ANRWatchDog().start();
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -579,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     // Oporto downtown
                     String city =
                             getPreferences(MODE_PRIVATE).getString(
-                                    Application.LAST_CITY_VISITED, "Santander");
+                                    Application.LAST_CITY_VISITED, "Ha Noi");
                     double[] coords = RouteActivity.cityCoords.get(city);
                     DEFAULT_COORDS = new GeoCoordinate(coords[0], coords[1]);
 
