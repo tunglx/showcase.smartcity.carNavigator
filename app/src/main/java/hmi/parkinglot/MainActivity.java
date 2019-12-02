@@ -581,7 +581,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     // Oporto downtown
                     String city =
                             getPreferences(MODE_PRIVATE).getString(
-                                    Application.LAST_CITY_VISITED, "Ha Noi");
+                                    Application.LAST_CITY_VISITED, "Hanoi");
+                    Log.d("tung", "city " + city + " cityCoord " + RouteActivity.cityCoords);
                     double[] coords = RouteActivity.cityCoords.get(city);
                     DEFAULT_COORDS = new GeoCoordinate(coords[0], coords[1]);
 

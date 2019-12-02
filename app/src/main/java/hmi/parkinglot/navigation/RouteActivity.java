@@ -77,7 +77,7 @@ public class RouteActivity implements LocationListener {
     private List<String> optionList2 = new ArrayList<String>();
     private static String[] CITIES = new String[]{
             "Ho Chi Minh City",
-            "Ha Noi",
+            "Hanoi",
             "Hai Phong",
             "Can Tho",
             "Da Nang",
@@ -151,7 +151,7 @@ public class RouteActivity implements LocationListener {
 
         SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_WORLD_READABLE);
 
-        originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Ha Noi"));
+        originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Hanoi"));
         origin.setText(prefs.getString(Application.LAST_ORIGIN, Application.EMPTY_STR));
 
         if (routeData.originCity.length() > 0) {
@@ -463,6 +463,7 @@ public class RouteActivity implements LocationListener {
                 if (routingError == RoutingError.NONE && list.get(0).getRoute() != null) {
                     routeData.route = list.get(0).getRoute();
                     progress.dismiss();
+                    Log.d("tung", "route data city " + routeData.city);
                     ((MainActivity) activity).onRouteReady(routeData);
                 } else {
                     Alert.show(activity.getApplicationContext(), "Error while obtaining route");
