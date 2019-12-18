@@ -434,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                locationProgress = ProgressDialog.show(Application.mainActivity, "FIWARE-HERE",
+                locationProgress = ProgressDialog.show(Application.mainActivity, getString(R.string.app_name),
                         "Obtaining current location", true);
                 calculateCurrentPosition(Application.mainActivity);
             }
@@ -542,14 +542,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 } else if (item.getItemId() == R.id.action_restart) {
                     clearMap();
                     showRoute();
-                } else if (item.getItemId() == R.id.action_loop) {
-                    if (routeWizard == null) {
-                        loopMode = true;
-                        getDirections(null);
-                    }
-                } else if (item.getItemId() == R.id.action_market) {
-                    showMarketplace();
                 }
+//                else if (item.getItemId() == R.id.action_loop) {
+//                    if (routeWizard == null) {
+//                        loopMode = true;
+//                        getDirections(null);
+//                    }
+//                } else if (item.getItemId() == R.id.action_market) {
+//                    showMarketplace();
+//                }
                 return true;
             }
         });
@@ -584,6 +585,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                     Application.LAST_CITY_VISITED, "Hanoi");
                     Log.d("tung", "city " + city + " cityCoord " + RouteActivity.cityCoords);
                     double[] coords = RouteActivity.cityCoords.get(city);
+                    if (coords == null) {
+                        coords = RouteActivity.cityCoords.get("Hanoi");
+                    }
                     DEFAULT_COORDS = new GeoCoordinate(coords[0], coords[1]);
 
                     defaultZoomLevel = map.getMaxZoomLevel() - 7.0;
@@ -788,6 +792,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     public void onRouteReady(RouteData r) {
         double[] newDefaultCoords = RouteActivity.cityCoords.get(r.city);
+        if (newDefaultCoords == null) {
+            newDefaultCoords = RouteActivity.cityCoords.get("Hanoi");
+        }
         DEFAULT_COORDS = new GeoCoordinate(newDefaultCoords[0], newDefaultCoords[1]);
 
         ViewGroup rootContainer = (ViewGroup)findViewById(R.id.mainFrame);

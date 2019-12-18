@@ -15,24 +15,6 @@
             android:orderInCategory="100"
             android:title="Simulate Route"
             app:showAsAction="never" />
-
-        <item
-            android:id="@+id/action_plan"
-            android:orderInCategory="200"
-            android:title="Plan Route"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/action_loop"
-            android:orderInCategory="300"
-            android:title="Loop Route"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/action_market"
-            android:orderInCategory="400"
-            android:title="Data Marketplace"
-            app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/simulationGroup">
