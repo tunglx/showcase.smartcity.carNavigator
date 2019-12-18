@@ -34,7 +34,7 @@ import hmi.parkinglot.weather.WeatherAttributes;
 public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String,List<Entity>> > {
     private CityDataListener listener;
 
-    private static String SERVICE_URL = "http://130.206.83.68:7007/v2/entities";
+    private static String SERVICE_URL = "http://165.22.62.250:1026/v2/entities";
 
     protected Map<String,List<Entity>> doInBackground(CityDataRequest... request) {
         String urlString = createRequestURL(request[0]);
@@ -111,7 +111,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         }
 
         out.put(Application.RESULT_SET_KEY, resultSet);
-
+        Log.d("tung", "retrieved data: " + out.toString());
         return out;
     }
 

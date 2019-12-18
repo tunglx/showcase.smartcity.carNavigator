@@ -103,7 +103,7 @@ public class Application {
     public static String LAST_ORIGIN = "Last_Origin";
     public static String LAST_DESTINATION = "Last_Destination";
 
-    public static String MARKET_URL = "https://demo-mwc.conwet.com/";
+    public static String MARKET_URL = "";
 
     public static String BF_TOKEN = "bf_token";
     public static String BF_USER  = "bf_user";
