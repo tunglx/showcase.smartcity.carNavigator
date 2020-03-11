@@ -6,6 +6,10 @@ import android.util.Log;
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPolygon;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,26 +21,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import hmi.parkinglot.Application;
 import hmi.parkinglot.parking.ParkingAttributes;
 import hmi.parkinglot.weather.WeatherAttributes;
 
 /**
- *
- *   Retrieves data from the city by calling FIWARE-HERE Adaptor
- *
- *
+ * Retrieves data from the city by calling FIWARE-HERE Adaptor
  */
-public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String,List<Entity>> > {
+public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String, List<Entity>>> {
     private CityDataListener listener;
 
     private static String SERVICE_URL = "http://165.22.62.250:1026/v2/entities";
 
-    protected Map<String,List<Entity>> doInBackground(CityDataRequest... request) {
+    protected Map<String, List<Entity>> doInBackground(CityDataRequest... request) {
         String urlString = createRequestURL(request[0]);
 
         StringBuffer output = new StringBuffer("");
@@ -60,7 +57,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
             Log.d(Application.TAG, "URL: " + urlString);
 
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "FIWARE-HERE-Navigator");
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
@@ -77,7 +74,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             Log.d(Application.TAG, "Response: " + output.toString());
             JSONArray array = new JSONArray(output.toString());
 
-            for(int j = 0; j < array.length(); j++) {
+            for (int j = 0; j < array.length(); j++) {
                 Entity ent = new Entity();
                 JSONObject obj = array.getJSONObject(j);
 
@@ -86,10 +83,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                 ent.attributes = new HashMap<String, Object>();
 
                 fillLocation(obj, ent);
-
                 fillAttributes(obj, ent.type, ent.attributes);
 
-                if(out.get(ent.type) == null) {
+                if (out.get(ent.type) == null) {
                     out.put(ent.type, new ArrayList<Entity>());
                 }
                 out.get(ent.type).add(ent);
@@ -97,45 +93,40 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                 resultSet.add(ent);
             }
         } catch (Exception e) {
-            Log.e(Application.TAG, "While obtaining data: " + e.toString());
-        }
-        finally {
+            e.printStackTrace();
+        } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
-                }
-                catch (Throwable thr) {
+                } catch (Throwable thr) {
                     Log.e(Application.TAG, "Error while closing stream: " + thr);
                 }
             }
         }
 
         out.put(Application.RESULT_SET_KEY, resultSet);
-        Log.d("tung", "retrieved data: " + out.toString());
+//        Log.d("tung", "retrieved data: " + out.toString());
         return out;
     }
 
     private void fillLocation(JSONObject obj, Entity ent) throws JSONException {
-        JSONObject location  = null;
+        JSONObject location = null;
         String locValue = null;
         JSONArray locArray = null;
 
         try {
             location = obj.getJSONObject("centroid");
-        }
-        catch(JSONException jse) {
+        } catch (JSONException jse) {
             try {
                 locValue = obj.getString("centroid");
-            }
-            catch(JSONException jse2) {
+            } catch (JSONException jse2) {
                 try {
                     location = obj.getJSONObject("location");
-                }
-                catch(JSONException jse3) {
+                } catch (JSONException jse3) {
                     try {
                         locValue = obj.getString("location");
+                    } catch (JSONException jsex) {
                     }
-                    catch(JSONException jsex) { }
 
                     if (locValue != null && locValue.indexOf("[") == 0) {
                         locValue = null;
@@ -146,10 +137,15 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
         // There could be entities (namely weather entities) without location
         if (location != null) {
-            locValue = location.getString("value");
+            location = location.getJSONObject("value");
+            locValue = location.getString("coordinates");
         }
         if (locValue != null) {
+            locValue = locValue.replace("[", "");
+            locValue = locValue.replace("]", "");
+            Log.d("tung", " locValue " + locValue);
             String[] coordinates = locValue.split(",");
+            Log.d("tung", "coor " + coordinates[0] + " " + coordinates[1]);
 
             ent.location = new double[]{Double.parseDouble(coordinates[0]),
                     Double.parseDouble(coordinates[1])};
@@ -166,16 +162,15 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
         try {
             JSONObject pollutants = obj.getJSONObject("pollutants");
-            for(String pollutant : Application.POLLUTANTS) {
+            for (String pollutant : Application.POLLUTANTS) {
                 try {
                     double value =
                             pollutants.getJSONObject(pollutant).getDouble("concentration");
                     attrs.put(pollutant, value);
+                } catch (JSONException jsoe) {
                 }
-                catch(JSONException jsoe) { }
             }
-        }
-        catch(JSONException jsoe) {
+        } catch (JSONException jsoe) {
 
         }
     }
@@ -201,8 +196,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             List<GeoPolygon> location = new ArrayList<GeoPolygon>();
             try {
                 polygons = obj.getJSONArray("location").getJSONArray(0);
-            }
-            catch(JSONException jsoe) {
+            } catch (JSONException jsoe) {
                 isArray = false;
             }
             if (isArray == true) {
@@ -217,8 +211,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                     }
                     location.add(new GeoPolygon(geoPolygon));
                 }
-            }
-            else {
+            } else {
                 location.add(getPolygon(obj.getString("location")));
             }
             attrs.put("polygon", location);
@@ -227,49 +220,42 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
     private void fillAttributes(JSONObject obj, String type,
                                 Map<String, Object> attrs) throws Exception {
+        Log.d("tung", "fill attrs: obj " + obj + " type " + type + " attrs " + attrs);
         if (type.equals("TrafficEvent")) {
 
-        }
-        else if (type.equals(Application.AMBIENT_OBSERVED_TYPE)) {
-            fillAmbientObserved(obj,type,attrs);
-        }
-        else if (type.equals(Application.PARKING_LOT_TYPE) ||
+        } else if (type.equals(Application.AMBIENT_OBSERVED_TYPE)) {
+            fillAmbientObserved(obj, type, attrs);
+        } else if (type.equals(Application.PARKING_LOT_TYPE) ||
                 type.equals(Application.STREET_PARKING_TYPE) ||
                 type.equals((Application.PARKING_LOT_ZONE_TYPE))) {
-           fillParking(obj, type, attrs);
-        }
-        else if (type.equals("CityEvent")) {
+            fillParking(obj, type, attrs);
+        } else if (type.equals("CityEvent")) {
 
-        }
-        else if (type.equals(Application.AMBIENT_AREA_TYPE)) {
-            fillAmbientArea(obj,type,attrs);
-        }
-        else if (type.equals(Application.WEATHER_FORECAST_TYPE)) {
-            fillWeather(obj,type, attrs);
-        }
-        else if (type.equals(Application.GARAGE_TYPE)) {
+        } else if (type.equals(Application.AMBIENT_AREA_TYPE)) {
+            fillAmbientArea(obj, type, attrs);
+        } else if (type.equals(Application.WEATHER_FORECAST_TYPE)) {
+            fillWeather(obj, type, attrs);
+        } else if (type.equals(Application.GARAGE_TYPE)) {
             fillGarage(obj, type, attrs);
-        }
-        else if (type.equals(Application.GAS_STATION_TYPE)) {
+        } else if (type.equals(Application.GAS_STATION_TYPE)) {
             fillGasStation(obj, type, attrs);
-        }
-        else if (type.equals(Application.PARKING_RESTRICTION_TYPE)) {
+        } else if (type.equals(Application.PARKING_RESTRICTION_TYPE)) {
             fillParkingRestriction(obj, type, attrs);
         }
     }
 
-    private void fillGarage (JSONObject obj, String type,
+    private void fillGarage(JSONObject obj, String type,
+                            Map<String, Object> attrs) throws Exception {
+        getStringJSONAttr("name", obj, null, attrs);
+    }
+
+    private void fillGasStation(JSONObject obj, String type,
+                                Map<String, Object> attrs) throws Exception {
+        getStringJSONAttr("name", obj, null, attrs);
+    }
+
+    private void fillWeather(JSONObject obj, String type,
                              Map<String, Object> attrs) throws Exception {
-        getStringJSONAttr("name", obj, null, attrs);
-    }
-
-    private void fillGasStation (JSONObject obj, String type,
-                                 Map<String, Object> attrs) throws Exception {
-        getStringJSONAttr("name", obj, null, attrs);
-    }
-
-    private void fillWeather (JSONObject obj, String type,
-                              Map<String, Object> attrs) throws Exception {
         getDoubleJSONAttr(WeatherAttributes.TEMPERATURE, obj, null, attrs);
         getDoubleJSONAttr(WeatherAttributes.R_HUMIDITY, obj, null, attrs);
         getCompoundJSONAttr(WeatherAttributes.MAXIMUM, obj, null, attrs);
@@ -290,7 +276,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         JSONArray array = obj.getJSONArray("location");
         List<GeoCoordinate> coordinates = new ArrayList<>();
 
-        for(int j = 0; j < array.length(); j++) {
+        for (int j = 0; j < array.length(); j++) {
             String coordPair = array.getString(j);
             String[] list = coordPair.split(",");
             GeoCoordinate coord = new GeoCoordinate(Double.parseDouble(list[0]),
@@ -304,7 +290,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         String[] polygonCoords = coords.split(",");
 
         List<GeoCoordinate> geoPolygon = new ArrayList<GeoCoordinate>();
-        for(int j = 0; j < polygonCoords.length; j+=2) {
+        for (int j = 0; j < polygonCoords.length; j += 2) {
             double lat = Double.parseDouble(polygonCoords[j]);
             double lon = Double.parseDouble(polygonCoords[j + 1]);
             geoPolygon.add(new GeoCoordinate(lat, lon));
@@ -326,9 +312,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
     private String getTypes(List<String> types) {
         StringBuffer out = new StringBuffer();
 
-        for(int j = 0; j < types.size(); j++) {
+        for (int j = 0; j < types.size(); j++) {
             out.append(types.get(j));
-            if(j + 1 < types.size()) {
+            if (j + 1 < types.size()) {
                 out.append(",");
             }
         }
@@ -338,32 +324,29 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
     private String createRequestURL(CityDataRequest req) {
         String geometry = req.geometry;
-        if(geometry == null) {
+        if (geometry == null) {
             geometry = "point";
         }
 
         String geoRelStr;
-        if(req.radius != -1) {
+        if (req.radius != -1) {
             geoRelStr = "&georel=near;maxDistance:" + req.radius;
-        }
-        else if ("intersects".equals(req.georel)) {
+        } else if ("intersects".equals(req.georel)) {
             geoRelStr = "&georel=intersects";
-        }
-        else {
+        } else {
             geoRelStr = "&georel=coveredBy";
         }
 
         String coords = "";
-        if(req.coordinates != null) {
+        if (req.coordinates != null) {
             coords = req.coordinates[0] + "," + req.coordinates[1];
-        }
-        else if (req.polygon != null) {
+        } else if (req.polygon != null) {
             for (int j = 0; j < req.polygon.getNumberOfPoints(); j++) {
                 GeoCoordinate point = req.polygon.getPoint(j);
                 coords += point.getLatitude() + "," + point.getLongitude();
                 coords += ",";
             }
-            coords = coords.substring(0,coords.length() - 1);
+            coords = coords.substring(0, coords.length() - 1);
         }
 
         String out = SERVICE_URL + "?" + "coords=" + coords
@@ -378,19 +361,19 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
 
     private void getDoubleJSONAttr(String attr, JSONObject obj, String mAttr,
-                                     Map<String, Object> attrs) {
+                                   Map<String, Object> attrs) {
         Double out = null;
         String mappedAttr = mAttr != null ? mAttr : attr;
 
         try {
             out = obj.getDouble(attr);
             attrs.put(mappedAttr, out);
+        } catch (JSONException e) {
         }
-        catch(JSONException e) { }
     }
 
     private void getCompoundJSONAttr(String attr, JSONObject obj, String mAttr,
-                                   Map<String, Object> attrs) {
+                                     Map<String, Object> attrs) {
 
         String mappedAttr = mAttr != null ? mAttr : attr;
 
@@ -398,19 +381,19 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             JSONObject data = obj.getJSONObject(attr);
             Iterator<String> keys = data.keys();
             Map<String, Object> values = new HashMap<>();
-            while(keys.hasNext()) {
+            while (keys.hasNext()) {
                 String key = keys.next();
                 Object value = data.get(key);
                 if (value instanceof Integer) {
-                    Integer ivalue = (Integer)value;
+                    Integer ivalue = (Integer) value;
                     value = new Double(ivalue.doubleValue());
                 }
                 values.put(key, value);
             }
 
             attrs.put(mappedAttr, values);
+        } catch (JSONException e) {
         }
-        catch(JSONException e) { }
     }
 
     private void getIntegerJSONAttr(String attr, JSONObject obj, String mAttr,
@@ -421,20 +404,20 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         try {
             out = obj.getInt(attr);
             attrs.put(mappedAttr, out);
+        } catch (JSONException e) {
         }
-        catch(JSONException e) { }
     }
 
     private void getStringJSONAttr(String attr, JSONObject obj, String mAttr,
-                                    Map<String, Object> attrs) {
+                                   Map<String, Object> attrs) {
         String out = null;
         String mappedAttr = mAttr != null ? mAttr : attr;
 
         try {
             out = obj.getString(attr);
             attrs.put(mappedAttr, out);
+        } catch (JSONException e) {
         }
-        catch(JSONException e) { }
     }
 
 
