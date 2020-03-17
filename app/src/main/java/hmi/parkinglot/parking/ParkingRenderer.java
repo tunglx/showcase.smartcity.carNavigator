@@ -41,6 +41,7 @@ public class ParkingRenderer {
             parkingIcon.setImageResource(R.mipmap.parking);
         } catch (Exception e) {
             parkingIcon = null;
+            e.printStackTrace();
         }
 
         return parkingIcon;

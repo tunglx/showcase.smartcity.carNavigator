@@ -126,6 +126,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                     try {
                         locValue = obj.getString("location");
                     } catch (JSONException jsex) {
+                        jsex.printStackTrace();
                     }
 
                     if (locValue != null && locValue.indexOf("[") == 0) {
@@ -168,10 +169,11 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                             pollutants.getJSONObject(pollutant).getDouble("concentration");
                     attrs.put(pollutant, value);
                 } catch (JSONException jsoe) {
+                    jsoe.printStackTrace();
                 }
             }
         } catch (JSONException jsoe) {
-
+            jsoe.printStackTrace();
         }
     }
 
@@ -226,6 +228,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         } else if (type.equals(Application.AMBIENT_OBSERVED_TYPE)) {
             fillAmbientObserved(obj, type, attrs);
         } else if (type.equals(Application.PARKING_LOT_TYPE) ||
+                type.equals(Application.PARKING_TYPE) ||
                 type.equals(Application.STREET_PARKING_TYPE) ||
                 type.equals((Application.PARKING_LOT_ZONE_TYPE))) {
             fillParking(obj, type, attrs);
@@ -369,6 +372,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             out = obj.getDouble(attr);
             attrs.put(mappedAttr, out);
         } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -393,6 +397,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
             attrs.put(mappedAttr, values);
         } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -405,6 +410,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             out = obj.getInt(attr);
             attrs.put(mappedAttr, out);
         } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -417,6 +423,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             out = obj.getString(attr);
             attrs.put(mappedAttr, out);
         } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
