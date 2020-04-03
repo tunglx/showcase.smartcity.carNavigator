@@ -90,6 +90,7 @@ import hmi.parkinglot.ngsi.CityDataListener;
 import hmi.parkinglot.ngsi.CityDataRequest;
 import hmi.parkinglot.ngsi.CityDataRetriever;
 import hmi.parkinglot.ngsi.Entity;
+import hmi.parkinglot.parking.ParkingAttributes;
 import hmi.parkinglot.parking.ParkingRenderer;
 import hmi.parkinglot.parking.ParkingRouteCalculator;
 import hmi.parkinglot.parking.ParkingRouteData;
@@ -1030,7 +1031,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         }
 
                         Integer availableSpotNumber =
-                                (Integer)candidate.attributes.get("availableSpotNumber");
+                                (Integer)candidate.attributes.get(ParkingAttributes.AVAILABLE_SPOTS);
+                        Log.d("tung", "availableSpot " + availableSpotNumber);
 
                         if (availableSpotNumber != null) {
                            if (availableSpotNumber > 1) {

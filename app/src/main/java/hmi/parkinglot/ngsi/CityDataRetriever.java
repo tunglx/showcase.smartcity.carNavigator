@@ -105,7 +105,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         }
 
         out.put(Application.RESULT_SET_KEY, resultSet);
-//        Log.d("tung", "retrieved data: " + out.toString());
+        Log.d("tung", "retrieved data: " + out.toString());
         return out;
     }
 
@@ -188,9 +188,8 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         getIntegerJSONAttr(ParkingAttributes.AVAILABLE_SPOTS, obj,
                 ParkingAttributes.AVAILABLE_SPOTS, attrs);
         getIntegerJSONAttr(ParkingAttributes.TOTAL_SPOTS, obj, ParkingAttributes.TOTAL_SPOTS, attrs);
-        getStringJSONAttr("name", obj, "name", attrs);
-        getStringJSONAttr("description", obj, "description", attrs);
-
+//        getStringJSONAttr("name", obj, "name", attrs);
+//        getStringJSONAttr("description", obj, "description", attrs);
         if (type.equals(Application.STREET_PARKING_TYPE)) {
             boolean isArray = true;
             JSONArray polygons = null;
@@ -200,6 +199,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                 polygons = obj.getJSONArray("location").getJSONArray(0);
             } catch (JSONException jsoe) {
                 isArray = false;
+                jsoe.printStackTrace();
             }
             if (isArray == true) {
                 int total = polygons.length();
@@ -214,15 +214,21 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                     location.add(new GeoPolygon(geoPolygon));
                 }
             } else {
-                location.add(getPolygon(obj.getString("location")));
+                JSONObject loc;
+                loc = obj.getJSONObject("location");
+                loc = loc.getJSONObject("value");
+                String locValue = loc.getString("coordinates");
+                locValue = locValue.replace("[", "");
+                locValue = locValue.replace("]", "");
+                location.add(getPolygon(locValue));
             }
+            Log.d("tung", "polygon location: " + location);
             attrs.put("polygon", location);
         }
     }
 
     private void fillAttributes(JSONObject obj, String type,
                                 Map<String, Object> attrs) throws Exception {
-        Log.d("tung", "fill attrs: obj " + obj + " type " + type + " attrs " + attrs);
         if (type.equals("TrafficEvent")) {
 
         } else if (type.equals(Application.AMBIENT_OBSERVED_TYPE)) {
@@ -405,26 +411,36 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                                     Map<String, Object> attrs) {
         Integer out = null;
         String mappedAttr = mAttr != null ? mAttr : attr;
+        JSONObject child;
 
         try {
-            out = obj.getInt(attr);
+            child = obj.getJSONObject(attr);
+            out = child.getInt("value");
+            if (attr.equalsIgnoreCase("availableSpotNumber")) {
+                out = 3;
+            }
             attrs.put(mappedAttr, out);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("tung", "obj" + obj);
+        Log.d("tung", "IntegerOutput: " + attr + " : " + out);
     }
 
     private void getStringJSONAttr(String attr, JSONObject obj, String mAttr,
                                    Map<String, Object> attrs) {
         String out = null;
         String mappedAttr = mAttr != null ? mAttr : attr;
+        JSONObject child;
 
         try {
-            out = obj.getString(attr);
+            child = obj.getJSONObject(attr);
+            out = child.getString("value");
             attrs.put(mappedAttr, out);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("tung", "StringOutput: " + attr + " : " + out);
     }
 
 
