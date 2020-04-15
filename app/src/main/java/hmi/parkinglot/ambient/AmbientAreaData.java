@@ -4,8 +4,7 @@ import com.here.android.mpa.common.GeoPolygon;
 import com.here.android.mpa.mapping.MapPolygon;
 
 /**
- *   Data about ambient area
- *
+ * Data about ambient area
  */
 public class AmbientAreaData {
     public String id;

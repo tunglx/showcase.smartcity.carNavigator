@@ -1,9 +1,10 @@
 package hmi.parkinglot.navigation;
 
+import android.util.Log;
+
 import com.here.android.mpa.guidance.VoiceCatalog;
 import com.here.android.mpa.guidance.VoicePackage;
 import com.here.android.mpa.guidance.VoiceSkin;
-import android.util.Log;
 
 import java.util.List;
 
@@ -26,26 +27,25 @@ public class VoiceNavigation {
 
         // Get the list of voice skins from the voice catalog list
         List<VoiceSkin> localSkins = voiceCatalog.getLocalVoiceSkins();
-        Log.e("voiceCatalog", localSkins == null ? "0" : localSkins.size()+"");
+        Log.e("voiceCatalog", localSkins == null ? "0" : localSkins.size() + "");
 
         // Search for an English TTS voice skin
-        for (int i=0; i<localSkins.size(); i++) {
+        for (int i = 0; i < localSkins.size(); i++) {
             VoiceSkin skin = localSkins.get(i);
             Log.e("voiceCatalog", skin.getLanguageCode());
 
-            if (skin.getLanguageCode().compareToIgnoreCase(VOICE_LANG_CODE) == 0 ) {
+            if (skin.getLanguageCode().compareToIgnoreCase(VOICE_LANG_CODE) == 0) {
                 if (skin.getOutputType() == VoiceSkin.OutputType.TTS) {
                     voiceSkin = skin;
                 }
-            }
-            else if (skin.getLanguageCode().compareToIgnoreCase(VOICE_LANG_CODE_ALT) == 0) {
+            } else if (skin.getLanguageCode().compareToIgnoreCase(VOICE_LANG_CODE_ALT) == 0) {
                 if (skin.getOutputType() == VoiceSkin.OutputType.TTS) {
                     voiceSkin = skin;
                 }
             }
         }
 
-        if(voiceSkin != null) {
+        if (voiceSkin != null) {
             Application.mainActivity.setVoiceSkin(voiceSkin);
             return;
         }
@@ -65,19 +65,19 @@ public class VoiceNavigation {
 
                             // Download voice skin
                             voiceCatalog.downloadVoice(voicePackage.getId(), new VoiceCatalog.OnDownloadDoneListener() {
-                                        @Override
-                                        public void onDownloadDone(VoiceCatalog.Error error) {
-                                            if (error == VoiceCatalog.Error.NONE) {
-                                                // Get the voice skin after it is downloaded
-                                                VoiceSkin vs = voiceCatalog.getLocalVoiceSkin(voicePackage.getId());
-                                                Application.mainActivity.setVoiceSkin(vs);
+                                @Override
+                                public void onDownloadDone(VoiceCatalog.Error error) {
+                                    if (error == VoiceCatalog.Error.NONE) {
+                                        // Get the voice skin after it is downloaded
+                                        VoiceSkin vs = voiceCatalog.getLocalVoiceSkin(voicePackage.getId());
+                                        Application.mainActivity.setVoiceSkin(vs);
 
-                                            } else {
-                                                Log.e("Download voice package", String.format(
-                                                        "Download voice package failed: %s", error.toString()));
-                                            }
-                                        }
-                                    });
+                                    } else {
+                                        Log.e("Download voice package", String.format(
+                                                "Download voice package failed: %s", error.toString()));
+                                    }
+                                }
+                            });
 
                             break;
                         }

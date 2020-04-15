@@ -21,9 +21,7 @@ import java.util.UUID;
 import hmi.parkinglot.Application;
 
 /**
- *   Transfers the route through Bluetooth to a paired device
- *
- *
+ * Transfers the route through Bluetooth to a paired device
  */
 public class RouteTransfer extends AsyncTask<RouteData, Void, Integer> {
 
@@ -32,7 +30,7 @@ public class RouteTransfer extends AsyncTask<RouteData, Void, Integer> {
     private void sendMessage(int result) {
         Message msg = handler.obtainMessage(0);
         Bundle bundle = new Bundle();
-        bundle.putInt(Application.TRANSFER_RESULT,result);
+        bundle.putInt(Application.TRANSFER_RESULT, result);
         msg.setData(bundle);
         handler.sendMessage(msg);
     }
@@ -51,7 +49,7 @@ public class RouteTransfer extends AsyncTask<RouteData, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer result) {
-       sendMessage(result.intValue());
+        sendMessage(result.intValue());
     }
 
     private int transfer(GeoCoordinate originCoords, String originName,
@@ -64,25 +62,25 @@ public class RouteTransfer extends AsyncTask<RouteData, Void, Integer> {
 
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
-        if(pairedDevices.size() == 0) {
+        if (pairedDevices.size() == 0) {
             Log.d(Application.TAG, "No paired devices found");
             return -1;
         }
 
         BluetoothDevice device = null;
-        for(BluetoothDevice bt : pairedDevices) {
+        for (BluetoothDevice bt : pairedDevices) {
             Log.d(Application.TAG, "Paired Device: " + bt.getName());
-            if(bt.getName().indexOf("Fiware-Here-Slave") == 0) {
+            if (bt.getName().indexOf("Fiware-Here-Slave") == 0) {
                 device = bt;
                 break;
             }
         }
 
-        if(device == null) {
+        if (device == null) {
             return -1;
         }
 
-        Log.d(Application.TAG,"Paired device to connect to: " + device.getName());
+        Log.d(Application.TAG, "Paired device to connect to: " + device.getName());
 
         try {
             UUID uuid = UUID.fromString("29B966E5-FBAD-4A05-B40E-86205D77AF72");
@@ -105,22 +103,20 @@ public class RouteTransfer extends AsyncTask<RouteData, Void, Integer> {
             int bytesRead = input.read(buffer);
             String data = new String(Arrays.copyOf(buffer, bytesRead));
 
-            if(data.equals("bye")) {
+            if (data.equals("bye")) {
                 Log.d(Application.TAG, "ACK received. Closing");
                 try {
                     input.close();
                     output.close();
                     socket.close();
-                }
-                catch(IOException ioe) {
+                } catch (IOException ioe) {
                     Log.e(Application.TAG, "Error while closing sockets: " + ioe);
                 }
             }
 
             // Success
             return 0;
-        }
-        catch(IOException ioe) {
+        } catch (IOException ioe) {
             Log.e(Application.TAG, "Error transferring route: " + ioe.toString());
             return -1;
         }

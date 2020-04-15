@@ -22,8 +22,7 @@ public class LocationTask extends AsyncTask<PositioningManager, Integer, GeoCoor
                 status =
                         posMan.getLocationStatus(PositioningManager.LocationMethod.GPS_NETWORK);
             }
-        }
-        catch(InterruptedException ie) {
+        } catch (InterruptedException ie) {
 
         }
 

@@ -8,10 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Scene;
@@ -30,6 +26,9 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.routing.CoreRouter;
 import com.here.android.mpa.routing.RouteOptions;
@@ -42,12 +41,12 @@ import com.here.android.mpa.search.DiscoveryResultPage;
 import com.here.android.mpa.search.ErrorCode;
 import com.here.android.mpa.search.GeocodeRequest;
 import com.here.android.mpa.search.GeocodeResult;
+import com.here.android.mpa.search.Location;
 import com.here.android.mpa.search.PlaceLink;
 import com.here.android.mpa.search.ResultListener;
 import com.here.android.mpa.search.ReverseGeocodeRequest2;
 import com.here.android.mpa.search.SearchRequest;
 import com.here.android.mpa.search.TextSuggestionRequest;
-import com.here.android.mpa.search.Location;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,17 +63,8 @@ import hmi.parkinglot.R;
  * Route Wizard
  */
 public class RouteActivity implements LocationListener {
+    public static Map<String, double[]> cityCoords = new HashMap<>();
     private static int GEOCODE_SEARCH_AREA = 6000;
-
-    private ProgressDialog progress, locationProgress;
-
-    private AutoCompleteTextView origin, destination, city, originCity;
-    private Button nextButton;
-
-    private ArrayAdapter<String> originAdapter;
-    private ArrayAdapter<String> destinationAdapter;
-    private List<String> optionList1 = new ArrayList<String>();
-    private List<String> optionList2 = new ArrayList<String>();
     private static String[] CITIES = new String[]{
             "Ho Chi Minh City",
             "Hanoi",
@@ -101,8 +91,7 @@ public class RouteActivity implements LocationListener {
             {21.59422, 105.848172},
             {12.248089, 109.19436}
     };
-
-    public static Map<String, double[]> cityCoords = new HashMap<>();
+    private static Activity activity;
 
     static {
         for (int j = 0; j < CITIES.length; j++) {
@@ -110,16 +99,37 @@ public class RouteActivity implements LocationListener {
         }
     }
 
+    private ProgressDialog progress, locationProgress;
+    private AutoCompleteTextView origin, destination, city, originCity;
+    private Button nextButton;
+    private ArrayAdapter<String> originAdapter;
+    private ArrayAdapter<String> destinationAdapter;
+    private List<String> optionList1 = new ArrayList<String>();
+    private List<String> optionList2 = new ArrayList<String>();
     private List<String> cityList = Arrays.asList(CITIES);
-
     private Drawable x, y;
-
     private String currentStep = "Origin";
     private RouteData routeData = new RouteData();
-
-    private static Activity activity;
-
     private Context context;
+    private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            InputMethodManager mgr = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            mgr.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+        }
+    };
+    private Handler UIHandler = new Handler(Looper.getMainLooper()) {
+        public void handleMessage(Message inputMessage) {
+            if (inputMessage.what == -1) {
+                if (progress != null) {
+                    progress.dismiss();
+                }
+
+                Toast.makeText(Application.mainActivity.getApplicationContext(),
+                        "Error while geocoding location", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     public RouteActivity(Context ctx) {
         context = ctx;
@@ -233,14 +243,6 @@ public class RouteActivity implements LocationListener {
             }
         });
     }
-
-    private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            InputMethodManager mgr = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            mgr.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
-        }
-    };
 
     private void setupAutoComplateHandlerParking() {
         AutoCompleteTextView vehicle = (AutoCompleteTextView) activity.findViewById(R.id.vehicleInput);
@@ -417,29 +419,6 @@ public class RouteActivity implements LocationListener {
         }
     }
 
-    private class MyTouchListener implements View.OnTouchListener {
-        private AutoCompleteTextView field;
-
-        public MyTouchListener(AutoCompleteTextView f) {
-            field = f;
-        }
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (field.getCompoundDrawables()[2] == null) {
-                return false;
-            }
-            if (event.getAction() != MotionEvent.ACTION_UP) {
-                return false;
-            }
-            if (event.getX() > field.getWidth() - field.getPaddingRight() - x.getIntrinsicWidth()) {
-                field.setText("");
-                field.setCompoundDrawables(y, null, null, null);
-            }
-            return false;
-        }
-    }
-
     ;
 
     private void doCalculateRoute(GeoCoordinate start, GeoCoordinate end) {
@@ -477,19 +456,6 @@ public class RouteActivity implements LocationListener {
             }
         });
     }
-
-    private Handler UIHandler = new Handler(Looper.getMainLooper()) {
-        public void handleMessage(Message inputMessage) {
-            if (inputMessage.what == -1) {
-                if (progress != null) {
-                    progress.dismiss();
-                }
-
-                Toast.makeText(Application.mainActivity.getApplicationContext(),
-                        "Error while geocoding location", Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
 
     private void geoCodeLocation(String locationStr, GeoCoordinate center,
                                  final ResultListener<GeoCoordinate> listener) {
@@ -632,6 +598,29 @@ public class RouteActivity implements LocationListener {
         return geoCoordinates;
     }
 
+    private class MyTouchListener implements View.OnTouchListener {
+        private AutoCompleteTextView field;
+
+        public MyTouchListener(AutoCompleteTextView f) {
+            field = f;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (field.getCompoundDrawables()[2] == null) {
+                return false;
+            }
+            if (event.getAction() != MotionEvent.ACTION_UP) {
+                return false;
+            }
+            if (event.getX() > field.getWidth() - field.getPaddingRight() - x.getIntrinsicWidth()) {
+                field.setText("");
+                field.setCompoundDrawables(y, null, null, null);
+            }
+            return false;
+        }
+    }
+
     private class MyTextWatcher implements TextWatcher, ResultListener<List<String>> {
         private AutoCompleteTextView view;
         private ArrayAdapter<String> adapter;
@@ -640,14 +629,14 @@ public class RouteActivity implements LocationListener {
         private String lastRequestQuery = "";
         private boolean pendingRequest = false;
 
-        private void checkRemoveButton() {
-            view.setCompoundDrawables(y, null,
-                    view.getText().toString().equals("") ? null : x, null);
-        }
-
         public MyTextWatcher(AutoCompleteTextView v, ArrayAdapter<String> a) {
             view = v;
             adapter = a;
+        }
+
+        private void checkRemoveButton() {
+            view.setCompoundDrawables(y, null,
+                    view.getText().toString().equals("") ? null : x, null);
         }
 
         @Override

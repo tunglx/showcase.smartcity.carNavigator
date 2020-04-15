@@ -14,14 +14,9 @@ import java.util.List;
 import hmi.parkinglot.Application;
 import hmi.parkinglot.R;
 import hmi.parkinglot.ngsi.Entity;
-import hmi.parkinglot.render.RenderStyle;
-import hmi.parkinglot.render.RenderUtilities;
 
 /**
- *
  * Renders extra objects such as parking restrictions, gas stations or garages
- *
- *
  */
 public class ExtraObjRenderer {
     public static void render(Context ctx, Map map, java.util.Map<String, List<Entity>> entities) {
@@ -62,7 +57,7 @@ public class ExtraObjRenderer {
         GeoCoordinate coords = new GeoCoordinate(ent.location[0], ent.location[1]);
 
         RenderStyle style = new RenderStyle();
-        style.textColor =  Color.BLACK;
+        style.textColor = Color.BLACK;
         style.textStyle = Typeface.NORMAL;
 
         MapMarker mapMarker = new MapMarker(coords,
@@ -82,7 +77,7 @@ public class ExtraObjRenderer {
         GeoCoordinate coords = new GeoCoordinate(ent.location[0], ent.location[1]);
 
         RenderStyle style = new RenderStyle();
-        style.textColor =  Color.BLACK;
+        style.textColor = Color.BLACK;
         style.textStyle = Typeface.NORMAL;
 
         MapMarker mapMarker = new MapMarker(coords,

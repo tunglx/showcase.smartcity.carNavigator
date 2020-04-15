@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *   Represents the data needed for the Async Task CityDataRetriever
- *
- *
+ * Represents the data needed for the Async Task CityDataRetriever
  */
 public class CityDataRequest {
     public List<String> types = new ArrayList<String>();

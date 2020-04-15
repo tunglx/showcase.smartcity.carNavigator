@@ -7,13 +7,10 @@ import android.util.Log;
 
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPolygon;
-
 import com.here.android.mpa.common.Image;
 import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapCircle;
-
 import com.here.android.mpa.mapping.MapMarker;
-
 import com.here.android.mpa.mapping.MapOverlayType;
 import com.here.android.mpa.mapping.MapPolygon;
 
@@ -21,18 +18,22 @@ import java.io.IOException;
 import java.util.List;
 
 import hmi.parkinglot.Application;
-import hmi.parkinglot.ngsi.Entity;
 import hmi.parkinglot.R;
+import hmi.parkinglot.ngsi.Entity;
 import hmi.parkinglot.render.RenderStyle;
 import hmi.parkinglot.render.RenderUtilities;
 
 
 /**
- *
  * Renders parking entities
- *
  */
 public class ParkingRenderer {
+
+    private static Image parkingIcon;
+
+    static {
+        parkingIcon = loadParkingIcon();
+    }
 
     private static Image loadParkingIcon() {
         Image parkingIcon = new Image();
@@ -47,16 +48,10 @@ public class ParkingRenderer {
         return parkingIcon;
     }
 
-    private static Image parkingIcon;
-
-    static {
-        parkingIcon = loadParkingIcon();
-    }
-
     // Parking can contain as well a parking restriction
     public static void render(Context ctx, Map map, List<Entity> parkings) {
-        for (Entity parking: parkings) {
-            if(Application.renderedEntities.get(parking.id) != null) {
+        for (Entity parking : parkings) {
+            if (Application.renderedEntities.get(parking.id) != null) {
                 continue;
             }
 
@@ -66,12 +61,10 @@ public class ParkingRenderer {
             } else if (parking.type.equals(Application.STREET_PARKING_TYPE)) {
                 try {
                     renderStreetParking(ctx, map, parking);
-                }
-                catch(Throwable thr) {
+                } catch (Throwable thr) {
                     Log.e(Application.TAG, "While rendering: " + parking.id);
                 }
-            }
-            else if (parking.type.equals(Application.PARKING_RESTRICTION_TYPE)) {
+            } else if (parking.type.equals(Application.PARKING_RESTRICTION_TYPE)) {
                 renderParkingRestriction(ctx, map, parking);
             }
 
@@ -80,16 +73,16 @@ public class ParkingRenderer {
     }
 
     private static void renderStreetParking(Context ctx, Map map, Entity ent) {
-        String available =  ent.attributes.get(ParkingAttributes.AVAILABLE_SPOTS).toString();
+        String available = ent.attributes.get(ParkingAttributes.AVAILABLE_SPOTS).toString();
 
-        if(available.equals("0")) {
+        if (available.equals("0")) {
             return;
         }
 
         String total = ent.attributes.get(ParkingAttributes.TOTAL_SPOTS).toString();
 
-        List<GeoPolygon> polygons = (List<GeoPolygon>)ent.attributes.get("polygon");
-        for(int j = 0; j < polygons.size(); j++) {
+        List<GeoPolygon> polygons = (List<GeoPolygon>) ent.attributes.get("polygon");
+        for (int j = 0; j < polygons.size(); j++) {
             GeoPolygon polygon = polygons.get(j);
 
             GeoCoordinate coords = polygon.getBoundingBox().getCenter();
@@ -116,7 +109,7 @@ public class ParkingRenderer {
     private static void renderParkingRestriction(Context ctx, Map map, Entity ent) {
         GeoCoordinate coords = new GeoCoordinate(ent.location[0], ent.location[1]);
 
-        GeoPolygon polygon = (GeoPolygon)ent.attributes.get("polygon");
+        GeoPolygon polygon = (GeoPolygon) ent.attributes.get("polygon");
 
         Log.d(Application.TAG, "Polygon:" + polygon.toString());
 
@@ -131,16 +124,14 @@ public class ParkingRenderer {
             map.addMapObject(streetPolygon);
 
             Application.mapObjects.add(streetPolygon);
-        }
-        catch(Throwable exc) {
+        } catch (Throwable exc) {
             Log.e(Application.TAG, "Error while rendering parking restriction: " + exc);
         }
 
         Image sensorImg = new Image();
         try {
             sensorImg.setImageResource(R.drawable.park_restriction);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.e(Application.TAG, "Cannot load image: " + e);
         }
         MapMarker marker = new MapMarker(coords, sensorImg);
@@ -156,7 +147,7 @@ public class ParkingRenderer {
     private static void renderParkingLot(Context ctx, Map map, Entity ent) {
         GeoCoordinate coords = new GeoCoordinate(ent.location[0], ent.location[1]);
 
-        Integer nAvailable = (Integer)ent.attributes.get(ParkingAttributes.AVAILABLE_SPOTS);
+        Integer nAvailable = (Integer) ent.attributes.get(ParkingAttributes.AVAILABLE_SPOTS);
 
         String available = "?";
         if (nAvailable != null) {
@@ -164,8 +155,8 @@ public class ParkingRenderer {
         }
 
         String total = "?";
-                Integer nTotal = (Integer)ent.attributes.get(ParkingAttributes.TOTAL_SPOTS);
-        if(nTotal != null) {
+        Integer nTotal = (Integer) ent.attributes.get(ParkingAttributes.TOTAL_SPOTS);
+        if (nTotal != null) {
             total = nTotal.toString();
         }
 
@@ -174,8 +165,8 @@ public class ParkingRenderer {
         RenderStyle style = new RenderStyle();
 
         MapMarker mapMarker = new MapMarker(coords,
-                                            RenderUtilities.createLabeledIcon(ctx,
-                                                    label, style, R.mipmap.parking));
+                RenderUtilities.createLabeledIcon(ctx,
+                        label, style, R.mipmap.parking));
         mapMarker.setOverlayType(MapOverlayType.FOREGROUND_OVERLAY);
         map.addMapObject(mapMarker);
 
@@ -190,7 +181,7 @@ public class ParkingRenderer {
     }
 
     public static void announceParkingMode(TextToSpeech tts) {
-        tts.playEarcon("parking_mode",TextToSpeech.QUEUE_ADD, null, "ParkingMode");
+        tts.playEarcon("parking_mode", TextToSpeech.QUEUE_ADD, null, "ParkingMode");
         tts.speak("We are close to the destination. Parking mode is on",
                 TextToSpeech.QUEUE_ADD, null, "ParkingMode");
     }

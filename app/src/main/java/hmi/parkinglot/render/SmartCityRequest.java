@@ -11,9 +11,8 @@ import java.util.List;
 import hmi.parkinglot.ngsi.Entity;
 
 /**
- *   This class holds data for the SmartCityHandler which will launch
- *   the rendering process
- *
+ * This class holds data for the SmartCityHandler which will launch
+ * the rendering process
  */
 public class SmartCityRequest {
     public Map map;

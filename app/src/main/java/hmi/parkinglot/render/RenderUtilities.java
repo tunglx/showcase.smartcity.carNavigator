@@ -8,20 +8,16 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.Log;
 
+import com.here.android.mpa.common.Image;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-import com.here.android.mpa.common.Image;
-
 import hmi.parkinglot.Application;
 
 /**
- *
- *   Map rendering utilities
- *
- *
+ * Map rendering utilities
  */
 public class RenderUtilities {
     // Splits the string to avoid too long lines
@@ -38,8 +34,7 @@ public class RenderUtilities {
             if (newLength > maxTokenLength && currentToken.length() > minTokenLength) {
                 out.add(currentToken.toString());
                 currentToken = new StringBuffer(token);
-            }
-            else {
+            } else {
                 if (currentToken.length() > 0) {
                     currentToken.append(" ");
                 }
@@ -52,8 +47,7 @@ public class RenderUtilities {
             String last = out.get(out.size() - 1);
             last += (" " + currentToken.toString());
             out.set(out.size() - 1, last);
-        }
-        else if (currentToken.length() > 0) {
+        } else if (currentToken.length() > 0) {
             out.add(currentToken.toString());
         }
 
@@ -64,14 +58,14 @@ public class RenderUtilities {
         List<Integer> out = new ArrayList<>();
 
         for (String text : strings) {
-           out.add((int)(paint.measureText(text) + 0.5f));
+            out.add((int) (paint.measureText(text) + 0.5f));
         }
 
-       return out;
+        return out;
     }
 
     private static int calculateTextHeight(Paint paint, List<String> text) {
-        float baseline = - paint.ascent();
+        float baseline = -paint.ascent();
         int textHeight = ((int) (baseline + paint.descent() + 0.5f)) * text.size();
 
         return textHeight;
@@ -99,11 +93,11 @@ public class RenderUtilities {
             Canvas resCanvas = new Canvas(resBitmap);
             resCanvas.drawBitmap(iconBitmap, calculateLeft(width, iconBitmap.getWidth()), 0, null);
 
-            float baseline = - paint.ascent();
+            float baseline = -paint.ascent();
             int lineHeight = (int) (baseline + paint.descent() + 0.5f);
             int tIndex = 0;
             for (String t : strings) {
-                resCanvas.drawText(t, calculateLeft (width, textWidths.get(tIndex)),
+                resCanvas.drawText(t, calculateLeft(width, textWidths.get(tIndex)),
                         baseline + iconBitmap.getHeight() + lineHeight * tIndex, paint);
                 tIndex++;
             }
@@ -126,12 +120,12 @@ public class RenderUtilities {
         return paint;
     }
 
-    private static float dipToPixels(Context ctx, float dip){
+    private static float dipToPixels(Context ctx, float dip) {
         final float scale = ctx.getResources().getDisplayMetrics().density;
         return (dip * scale);
     }
 
-    private static int calculateLeft (int globalWidth, int elementWidth) {
+    private static int calculateLeft(int globalWidth, int elementWidth) {
         return (globalWidth - elementWidth) / 2;
     }
 }

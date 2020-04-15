@@ -16,23 +16,21 @@ import java.util.HashMap;
 import java.util.List;
 
 import hmi.parkinglot.Application;
-import hmi.parkinglot.ngsi.Entity;
 import hmi.parkinglot.R;
 import hmi.parkinglot.ResultListener;
-import hmi.parkinglot.navigation.SpeechMessage;
 import hmi.parkinglot.Utilities;
+import hmi.parkinglot.navigation.SpeechMessage;
+import hmi.parkinglot.ngsi.Entity;
 import hmi.parkinglot.weather.WeatherAttributes;
 
 
 /**
- *
- *  Helper class for rendering city data
- *
+ * Helper class for rendering city data
  */
 public class CityDataRenderer {
+    ResultListener<java.util.Map<String, java.util.Map>> listener;
     private StringBuffer str;
     private List<SpeechMessage> msgs = new ArrayList<>();
-    ResultListener<java.util.Map<String, java.util.Map>> listener;
 
     public void setListener(ResultListener<java.util.Map<String, java.util.Map>> listener) {
         this.listener = listener;
@@ -43,47 +41,46 @@ public class CityDataRenderer {
         str = new StringBuffer();
         final GeoCoordinate coords = new GeoCoordinate(ent.location[0], ent.location[1]);
 
-        Double temperature = (Double)ent.attributes.get(WeatherAttributes.TEMPERATURE);
+        Double temperature = (Double) ent.attributes.get(WeatherAttributes.TEMPERATURE);
 
-        if(temperature != null) {
+        if (temperature != null) {
             msgs.add(new SpeechMessage("Temperature: " + temperature,
                     500, ent.id + "_" + "Temperature"));
             str.append("Temperature: " + temperature);
         }
 
-        Double humidity = (Double)ent.attributes.get(WeatherAttributes.R_HUMIDITY);
-        if(humidity != null) {
+        Double humidity = (Double) ent.attributes.get(WeatherAttributes.R_HUMIDITY);
+        if (humidity != null) {
             msgs.add(new SpeechMessage("Humidity: " + humidity + "%",
                     500, ent.id + "_" + "Humidity"));
-            if(str.length() > 0) {
+            if (str.length() > 0) {
                 str.append("\n");
             }
             str.append("Humidity: " + humidity + "%");
         }
 
-        if(ent.attributes.get("noiseLevel") != null) {
-            double noiseLevel = ((Double)ent.attributes.get("noiseLevel")).doubleValue();
-            if(str.length() > 0) {
+        if (ent.attributes.get("noiseLevel") != null) {
+            double noiseLevel = ((Double) ent.attributes.get("noiseLevel")).doubleValue();
+            if (str.length() > 0) {
                 str.append("\n");
             }
             String text = null;
 
-            if(noiseLevel > 65) {
+            if (noiseLevel > 65) {
                 text = "Noise level is high";
-            }
-            else {
+            } else {
                 text = "Noise level is normal";
             }
 
             str.append(text);
-            msgs.add(new SpeechMessage(text, -1,  ent.id + "_" + "NoiseLevel"));
+            msgs.add(new SpeechMessage(text, -1, ent.id + "_" + "NoiseLevel"));
         }
 
         AirQualityCalculator calculator = new AirQualityCalculator();
         // Filter out only pollutants
         java.util.Map<String, Double> pollutantData = new HashMap<>();
-        for (String pollutant: Application.POLLUTANTS) {
-            Double value = (Double)ent.attributes.get(pollutant);
+        for (String pollutant : Application.POLLUTANTS) {
+            Double value = (Double) ent.attributes.get(pollutant);
             if (value != null) {
                 pollutantData.put(pollutant, value);
             }
@@ -113,7 +110,7 @@ public class CityDataRenderer {
 
                 Utilities.speak(tts, msgs);
 
-                if(data.asString != null) {
+                if (data.asString != null) {
                     if (str.length() > 0) {
                         str.append("\n");
                     }
@@ -141,7 +138,7 @@ public class CityDataRenderer {
             final double currentZoom = hereMap.getZoomLevel();
             hereMap.setZoomLevel(hereMap.getZoomLevel() - 2,
                     hereMap.projectToPixel(hereMap.getCenter()).getResult(),
-                                                    Map.Animation.LINEAR);
+                    Map.Animation.LINEAR);
         }
 
         return str.toString();

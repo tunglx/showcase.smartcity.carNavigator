@@ -12,12 +12,15 @@ import hmi.parkinglot.ResultListener;
 
 
 /**
- *   Calculates air quality according to the concentration values
- *   measured by sensors
- *
+ * Calculates air quality according to the concentration values
+ * measured by sensors
  */
 public class AirQualityCalculator extends AsyncTask<Map, Integer, Map> {
-    ResultListener<Map<String,Map>> listener;
+    ResultListener<Map<String, Map>> listener;
+
+    public AirQualityCalculator() {
+
+    }
 
     protected Map doInBackground(Map... request) {
         Map params = request[0];
@@ -26,8 +29,7 @@ public class AirQualityCalculator extends AsyncTask<Map, Integer, Map> {
 
         try {
             out = getAirQualityIndexes(params);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             Log.e(Application.TAG, "Error while calculating air quality index: " + e);
         }
 
@@ -42,20 +44,13 @@ public class AirQualityCalculator extends AsyncTask<Map, Integer, Map> {
         listener.onResultReady(data);
     }
 
-
-
-    public AirQualityCalculator() {
-
-    }
-
     /**
-     *   Obtains the air quality indexes for different pollutants
+     * Obtains the air quality indexes for different pollutants
+     * <p>
+     * A map of values which represent an hourly-based value is passed as parameter
      *
-     *   A map of values which represent an hourly-based value is passed as parameter
-     *
-     *   @param attributes
-     *   @return
-     *
+     * @param attributes
+     * @return
      */
     private Map getAirQualityIndexes(Map<String, Double> attributes) throws Exception {
         AirQualityParameters.Values thresholds = AirQualityParameters.getInstance().getData();
@@ -66,17 +61,17 @@ public class AirQualityCalculator extends AsyncTask<Map, Integer, Map> {
             double measuredConcentration = attributes.get(pollutant);
             List<Map> pollutantData = thresholds.thresholdData.get(pollutant);
 
-            if(pollutantData != null) {
+            if (pollutantData != null) {
                 String clazz = null;
                 double maxConcentration = -1;
                 double minConcentration = -1;
 
                 for (Map values : pollutantData) {
-                    minConcentration = ((Integer)values.get("minConcentration")).doubleValue();
-                    maxConcentration = ((Integer)values.get("maxConcentration")).doubleValue();
+                    minConcentration = ((Integer) values.get("minConcentration")).doubleValue();
+                    maxConcentration = ((Integer) values.get("maxConcentration")).doubleValue();
                     if (measuredConcentration >= minConcentration &&
                             measuredConcentration <= maxConcentration) {
-                        clazz = (String)values.get("indexClass");
+                        clazz = (String) values.get("indexClass");
                         break;
                     }
                 }
@@ -85,14 +80,14 @@ public class AirQualityCalculator extends AsyncTask<Map, Integer, Map> {
                     // Now the air quality index can be calculated
                     Map indexCharacteristics = thresholds.indexClasses.get(clazz);
 
-                    double iStart = ((Integer)indexCharacteristics.get("startValue")).doubleValue();
-                    double iEnd = ((Integer)indexCharacteristics.get("endValue")).doubleValue();
+                    double iStart = ((Integer) indexCharacteristics.get("startValue")).doubleValue();
+                    double iEnd = ((Integer) indexCharacteristics.get("endValue")).doubleValue();
 
                     double index = ((iEnd - iStart) / (maxConcentration - minConcentration)) *
                             (measuredConcentration - minConcentration) + iStart;
 
-                    Map<String,Object> result = new HashMap<>();
-                    result.put("value", new Integer((int)Math.round(index)));
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("value", new Integer((int) Math.round(index)));
                     result.put("name", clazz);
                     result.put("description", indexCharacteristics.get("description"));
 

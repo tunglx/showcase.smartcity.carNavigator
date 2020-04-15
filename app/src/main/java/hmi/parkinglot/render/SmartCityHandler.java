@@ -23,14 +23,12 @@ import hmi.parkinglot.parking.ParkingRenderer;
 import hmi.parkinglot.weather.WeatherAttributes;
 
 /**
- *   Handles data coming from the smart city
- *
- *
+ * Handles data coming from the smart city
  */
-public class SmartCityHandler extends AsyncTask<SmartCityRequest, Integer, Map<String,Object>> {
+public class SmartCityHandler extends AsyncTask<SmartCityRequest, Integer, Map<String, Object>> {
     private RenderListener listener;
 
-    protected Map<String,Object> doInBackground(SmartCityRequest... request) {
+    protected Map<String, Object> doInBackground(SmartCityRequest... request) {
         SmartCityRequest input = request[0];
         Map<String, List<Entity>> data = input.data;
 
@@ -49,33 +47,31 @@ public class SmartCityHandler extends AsyncTask<SmartCityRequest, Integer, Map<S
         List<Entity> environment = data.get(Application.AMBIENT_OBSERVED_TYPE);
         List<Entity> weather = data.get(Application.WEATHER_FORECAST_TYPE);
 
-        Map<String,Object> output = new HashMap<String, Object>();
+        Map<String, Object> output = new HashMap<String, Object>();
 
         ParkingRenderer.render(Application.mainActivity.getApplicationContext(),
                 input.map, parkings);
 
         if (environment != null && environment.size() > 0) {
             List<Entity> filteredEnv = new ArrayList<>();
-            for(Entity ent : environment) {
-                String created = (String)ent.attributes.get("created");
-                String sensorType = (String)ent.attributes.get("sensorType");
+            for (Entity ent : environment) {
+                String created = (String) ent.attributes.get("created");
+                String sensorType = (String) ent.attributes.get("sensorType");
 
                 if (sensorType != null && sensorType.equals("Mobile")) {
                     if (created != null) {
                         // Filter out any kind of measurement which is old
-                        DateTimeFormatter parser    = ISODateTimeFormat.dateTimeParser();
+                        DateTimeFormatter parser = ISODateTimeFormat.dateTimeParser();
                         DateTime dateCreated = parser.parseDateTime(created);
                         DateTime now = DateTime.now();
-                        if (now.getMillis() - dateCreated.getMillis() <= (2 * 60 *  60 * 1000)) {
+                        if (now.getMillis() - dateCreated.getMillis() <= (2 * 60 * 60 * 1000)) {
                             filteredEnv.add(ent);
-                        }
-                        else {
+                        } else {
                             Log.d(Application.TAG, ent.id +
                                     ": Not rendered as it is a very old measurement");
                         }
                     }
-                }
-                else if (sensorType == null || created == null) {
+                } else if (sensorType == null || created == null) {
                     filteredEnv.add(ent);
                 }
             }
@@ -103,7 +99,7 @@ public class SmartCityHandler extends AsyncTask<SmartCityRequest, Integer, Map<S
                     }
                 });
 
-                for (Entity ent: filteredEnv) {
+                for (Entity ent : filteredEnv) {
                     if (Application.renderedEntities.get(ent.id) == null) {
                         Utilities.WeatherObservedData woData = new Utilities.WeatherObservedData();
                         woData.temperature = (Double) ent.attributes.get(WeatherAttributes.TEMPERATURE);
@@ -125,13 +121,13 @@ public class SmartCityHandler extends AsyncTask<SmartCityRequest, Integer, Map<S
             long accuracy = Long.MAX_VALUE;
             long after = Long.MAX_VALUE;
             DateTime now = new DateTime();
-            for(Entity ow: weather) {
-                Map<String, String> valid = (Map<String, String>)ow.attributes.get("validity");
+            for (Entity ow : weather) {
+                Map<String, String> valid = (Map<String, String>) ow.attributes.get("validity");
                 if (valid != null) {
                     String from = valid.get("from");
                     String to = valid.get("to");
 
-                    DateTimeFormatter parser    = ISODateTimeFormat.dateTimeParser();
+                    DateTimeFormatter parser = ISODateTimeFormat.dateTimeParser();
                     DateTime dateFrom = parser.parseDateTime(from);
                     DateTime dateTo = parser.parseDateTime(to);
 

@@ -29,9 +29,8 @@ import hmi.parkinglot.weather.WeatherAttributes;
  * Retrieves data from the city by calling FIWARE-HERE Adaptor
  */
 public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String, List<Entity>>> {
-    private CityDataListener listener;
-
     private static String SERVICE_URL = "http://165.22.62.250:1026/v2/entities";
+    private CityDataListener listener;
 
     protected Map<String, List<Entity>> doInBackground(CityDataRequest... request) {
         String urlString = createRequestURL(request[0]);

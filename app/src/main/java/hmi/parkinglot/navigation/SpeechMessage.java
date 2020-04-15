@@ -1,9 +1,7 @@
 package hmi.parkinglot.navigation;
 
 /**
- *    Speech message to be synthesized
- *
- *
+ * Speech message to be synthesized
  */
 public class SpeechMessage {
     public String message;

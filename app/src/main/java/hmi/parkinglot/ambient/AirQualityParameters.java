@@ -18,8 +18,7 @@ import java.util.Map;
 import hmi.parkinglot.Application;
 
 /**
- *  Holds AirQuality parameters
- *
+ * Holds AirQuality parameters
  */
 public class AirQualityParameters {
     private static AirQualityParameters instance = new AirQualityParameters();
@@ -33,12 +32,6 @@ public class AirQualityParameters {
 
     private AirQualityParameters() {
 
-    }
-
-    public class Values {
-        // Cache to hold the data corresponding to thresholds
-        public Map<String,List> thresholdData = new HashMap<>();
-        public Map<String,Map>  indexClasses =  new HashMap<>();
     }
 
     public static AirQualityParameters getInstance() {
@@ -56,7 +49,7 @@ public class AirQualityParameters {
 
         Log.d(Application.TAG, "URL: " + urlString);
 
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestProperty("User-Agent", "FIWARE-HERE-Navigator");
         connection.setRequestMethod("GET");
         connection.setDoInput(true);
@@ -78,7 +71,7 @@ public class AirQualityParameters {
     }
 
     public synchronized Values getData() throws Exception {
-        if(!dataLoaded) {
+        if (!dataLoaded) {
             doLoadData();
         }
         dataLoaded = true;
@@ -107,17 +100,23 @@ public class AirQualityParameters {
             String pollutant = getValue(obj, "pollutant");
 
             List<Map> pollutantData = this.values.thresholdData.get(pollutant);
-            if(pollutantData == null) {
+            if (pollutantData == null) {
                 pollutantData = new ArrayList<Map>();
                 this.values.thresholdData.put(pollutant, pollutantData);
             }
 
-            Map<String,Object> newThreshold = new HashMap<>();
+            Map<String, Object> newThreshold = new HashMap<>();
             newThreshold.put("indexClass", getValue(obj, "indexClass"));
             newThreshold.put("minConcentration", new Integer(getValue(obj, "minConcentration")));
             newThreshold.put("maxConcentration", new Integer(getValue(obj, "maxConcentration")));
 
             pollutantData.add(newThreshold);
         }
+    }
+
+    public class Values {
+        // Cache to hold the data corresponding to thresholds
+        public Map<String, List> thresholdData = new HashMap<>();
+        public Map<String, Map> indexClasses = new HashMap<>();
     }
 }

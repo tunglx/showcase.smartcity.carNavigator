@@ -1,8 +1,7 @@
 package hmi.parkinglot.parking;
 
 /**
- *  Parking attributes
- *
+ * Parking attributes
  */
 public class ParkingAttributes {
     public static String TOTAL_SPOTS = "totalSpotNumber";

@@ -22,21 +22,30 @@ import java.util.HashMap;
 import java.util.List;
 
 import hmi.parkinglot.Application;
+import hmi.parkinglot.R;
+import hmi.parkinglot.ResultListener;
+import hmi.parkinglot.Utilities;
+import hmi.parkinglot.navigation.SpeechMessage;
 import hmi.parkinglot.ngsi.CityDataListener;
 import hmi.parkinglot.ngsi.CityDataRequest;
 import hmi.parkinglot.ngsi.CityDataRetriever;
 import hmi.parkinglot.ngsi.Entity;
-import hmi.parkinglot.R;
-import hmi.parkinglot.ResultListener;
-import hmi.parkinglot.navigation.SpeechMessage;
-import hmi.parkinglot.Utilities;
 
 /**
- *   Renders an AmbientArea by creating a polygon and querying for sensor data on that area
- *   and knowing about overall air quality there
- *
+ * Renders an AmbientArea by creating a polygon and querying for sensor data on that area
+ * and knowing about overall air quality there
  */
 public class AmbientAreaRenderer implements CityDataListener {
+
+    public static java.util.Map<String, String> AREA_COLORS = new HashMap<>();
+
+    static {
+        int index = 0;
+        for (String pollutionLevel : Application.POLLUTION_LEVELS) {
+            AREA_COLORS.put(pollutionLevel, Application.POLLUTION_COLORS[index++]);
+        }
+
+    }
 
     private Map hereMap;
     private TextToSpeech tts;
@@ -46,22 +55,12 @@ public class AmbientAreaRenderer implements CityDataListener {
     private View oascView;
     private GeoCoordinate currentPos;
 
-    public static java.util.Map<String,String> AREA_COLORS = new HashMap<>();
-
-    static {
-        int index = 0;
-        for(String pollutionLevel : Application.POLLUTION_LEVELS) {
-            AREA_COLORS.put(pollutionLevel,Application.POLLUTION_COLORS[index++]);
-        }
-
-    }
-
     public AmbientAreaRenderer(Map hereMap, TextToSpeech tts, Entity ent, View v,
                                GeoCoordinate currentPos) {
         this.hereMap = hereMap;
         this.ambientArea = ent;
         this.tts = tts;
-        this.polygon = (GeoPolygon)ent.attributes.get("polygon");
+        this.polygon = (GeoPolygon) ent.attributes.get("polygon");
         this.oascView = v;
         this.currentPos = currentPos;
     }
@@ -70,23 +69,23 @@ public class AmbientAreaRenderer implements CityDataListener {
     public void onCityDataReady(java.util.Map<String, List<Entity>> data) {
         // When city data is ready, obtain data from all the sensors
         // and then pass the ball to the AirQualityCalculator
-        java.util.Map<String,List<Double>> pollutants = new HashMap<>();
+        java.util.Map<String, List<Double>> pollutants = new HashMap<>();
 
-        for (Entity ent: data.get(Application.RESULT_SET_KEY)) {
-            if(!ent.type.equals(Application.AMBIENT_OBSERVED_TYPE)) {
+        for (Entity ent : data.get(Application.RESULT_SET_KEY)) {
+            if (!ent.type.equals(Application.AMBIENT_OBSERVED_TYPE)) {
                 continue;
             }
 
-            java.util.Map<String,Object> attributes = ent.attributes;
+            java.util.Map<String, Object> attributes = ent.attributes;
 
             for (String pollutant : Application.POLLUTANTS) {
                 if (attributes.get(pollutant) != null) {
                     List<Double> accumulated = pollutants.get(pollutant);
-                    if(accumulated == null) {
+                    if (accumulated == null) {
                         accumulated = new ArrayList<>();
                         pollutants.put(pollutant, accumulated);
                     }
-                    accumulated.add((Double)attributes.get(pollutant));
+                    accumulated.add((Double) attributes.get(pollutant));
                 }
             }
         }
@@ -105,9 +104,9 @@ public class AmbientAreaRenderer implements CityDataListener {
         }
 
         AirQualityCalculator calculator = new AirQualityCalculator();
-        calculator.setListener(new ResultListener<java.util.Map<String,java.util.Map>>() {
+        calculator.setListener(new ResultListener<java.util.Map<String, java.util.Map>>() {
             @Override
-            public void onResultReady(java.util.Map<String,java.util.Map> result) {
+            public void onResultReady(java.util.Map<String, java.util.Map> result) {
                 if (result != null && result.size() > 0) {
                     oascView.findViewById(R.id.airQualityGroup).setVisibility(View.VISIBLE);
                     Utilities.updateAirPollution(result,
@@ -115,7 +114,7 @@ public class AmbientAreaRenderer implements CityDataListener {
 
                     Utilities.AirQualityData data = Utilities.getAirQualityData(result);
 
-                    String aqiLevelName = (String)data.worstIndex.get("name");
+                    String aqiLevelName = (String) data.worstIndex.get("name");
 
                     MapPolygon polygon = doRender(AREA_COLORS.get(aqiLevelName));
 
@@ -123,7 +122,7 @@ public class AmbientAreaRenderer implements CityDataListener {
                             "ambient_area_announcement");
                     List<SpeechMessage> msgs = new ArrayList<>();
                     msgs.add(new SpeechMessage("You have entered an area with "
-                            + data.worstIndex.get("description") + " pollution", 100, "Pollution_Area" ));
+                            + data.worstIndex.get("description") + " pollution", 100, "Pollution_Area"));
                     Utilities.speak(tts, msgs);
 
                     /*
@@ -143,8 +142,7 @@ public class AmbientAreaRenderer implements CityDataListener {
                     Application.mapObjects.add(marker);
 
                     listener.onRendered(aqiLevelName, polygon);
-                }
-                else {
+                } else {
                     Log.w(Application.TAG, "Air quality calculator returned empty object");
                 }
             }
@@ -167,7 +165,7 @@ public class AmbientAreaRenderer implements CityDataListener {
 
     public void render(AmbientAreaRenderListener listener) {
         this.listener = listener;
-        polygon = (GeoPolygon)ambientArea.attributes.get("polygon");
+        polygon = (GeoPolygon) ambientArea.attributes.get("polygon");
         getDataFromSensors();
     }
 
@@ -191,8 +189,7 @@ public class AmbientAreaRenderer implements CityDataListener {
                 PointF point = pr.getResult();
                 hereMap.setZoomLevel(hereMap.getZoomLevel() - 3, point, Map.Animation.LINEAR);
             }
-        }
-        catch(Throwable thr) {
+        } catch (Throwable thr) {
             Log.e(Application.TAG, "Error while painting ambient area: " + thr);
         }
 

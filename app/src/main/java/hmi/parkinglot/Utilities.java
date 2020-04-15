@@ -29,35 +29,22 @@ import hmi.parkinglot.weather.WeatherAttributes;
 import hmi.parkinglot.weather.WeatherTypes;
 
 /**
- *
- *  Utilities class
- *
- *
+ * Utilities class
  */
 public class Utilities {
-    public static class AirQualityData {
-        public String asString;
-        public java.util.Map worstIndex;
-    }
-
-    public static class WeatherObservedData {
-        public Double temperature = null;
-        public Double humidity = null;
-    }
-
     public static AirQualityData getAirQualityData(java.util.Map<String, java.util.Map> result) {
         AirQualityData out = new AirQualityData();
 
         int maxIndex = -1;
         // Lets see what is the greatest AQI and then paint accordingly
-        java.util.Map<String,Object> targetAqi = null;
+        java.util.Map<String, Object> targetAqi = null;
 
         StringBuffer markerOut = new StringBuffer();
         for (String aqiInfo : result.keySet()) {
-            java.util.Map<String,Object> indexData = result.get(aqiInfo);
+            java.util.Map<String, Object> indexData = result.get(aqiInfo);
 
-            int value = (Integer)indexData.get("value");
-            String levelName = (String)indexData.get("description");
+            int value = (Integer) indexData.get("value");
+            String levelName = (String) indexData.get("description");
 
             markerOut.append(aqiInfo).append(": ").
                     append(value).append(". ").append(levelName).append("\n");
@@ -81,8 +68,7 @@ public class Utilities {
         Image sensorImg = new Image();
         try {
             sensorImg.setImageResource(R.drawable.sensor2);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.e(Application.TAG, "Cannot load image: " + e);
         }
         MapMarker marker = new MapMarker(coords, sensorImg);
@@ -96,110 +82,110 @@ public class Utilities {
     public static void updateWeather(Map<String, Object> data, View v) {
         v.setVisibility(RelativeLayout.VISIBLE);
 
-        Map maximumValues = (Map)data.get(WeatherAttributes.MAXIMUM);
+        Map maximumValues = (Map) data.get(WeatherAttributes.MAXIMUM);
 
         if (maximumValues != null) {
-            Double maxTemp = (Double)maximumValues.get(WeatherAttributes.TEMPERATURE);
+            Double maxTemp = (Double) maximumValues.get(WeatherAttributes.TEMPERATURE);
 
             if (maxTemp != null) {
-                TextView tv = (TextView)v.findViewById(R.id.maxTemperature);
+                TextView tv = (TextView) v.findViewById(R.id.maxTemperature);
                 tv.setText(formatDouble(Math.floor(maxTemp)));
             }
 
-            Double maxH = (Double)maximumValues.get(WeatherAttributes.R_HUMIDITY);
+            Double maxH = (Double) maximumValues.get(WeatherAttributes.R_HUMIDITY);
 
             if (maxH != null) {
                 v.findViewById(R.id.forecastedHumidity).setVisibility(RelativeLayout.VISIBLE);
-                TextView tv = (TextView)v.findViewById(R.id.maxHumidity);
-                tv.setText(String.valueOf((long)(maxH * 100)));
+                TextView tv = (TextView) v.findViewById(R.id.maxHumidity);
+                tv.setText(String.valueOf((long) (maxH * 100)));
             }
         }
 
-        Map minimumValues = (Map)data.get(WeatherAttributes.MINIMUM);
+        Map minimumValues = (Map) data.get(WeatherAttributes.MINIMUM);
 
         if (minimumValues != null) {
-            Double minTemp = (Double)minimumValues.get(WeatherAttributes.TEMPERATURE);
+            Double minTemp = (Double) minimumValues.get(WeatherAttributes.TEMPERATURE);
 
             if (minTemp != null) {
-                TextView tv = (TextView)v.findViewById(R.id.minTemperature);
+                TextView tv = (TextView) v.findViewById(R.id.minTemperature);
                 tv.setText(String.valueOf(formatDouble(Math.floor(minTemp))));
             }
 
-            Double minH = (Double)minimumValues.get(WeatherAttributes.R_HUMIDITY);
+            Double minH = (Double) minimumValues.get(WeatherAttributes.R_HUMIDITY);
 
             if (minH != null) {
-                TextView tv = (TextView)v.findViewById(R.id.minHumidity);
-                tv.setText(String.valueOf((long)(minH * 100)));
+                TextView tv = (TextView) v.findViewById(R.id.minHumidity);
+                tv.setText(String.valueOf((long) (minH * 100)));
             }
         }
 
-        Double temperature = (Double)data.get(WeatherAttributes.TEMPERATURE);
+        Double temperature = (Double) data.get(WeatherAttributes.TEMPERATURE);
 
         if (temperature != null) {
-            TextView tv = (TextView)v.findViewById(R.id.currentTemperature);
+            TextView tv = (TextView) v.findViewById(R.id.currentTemperature);
             tv.setText((long) temperature.doubleValue() + "ºC");
         }
 
-        Double humidity = (Double)data.get(WeatherAttributes.R_HUMIDITY);
+        Double humidity = (Double) data.get(WeatherAttributes.R_HUMIDITY);
 
         if (humidity != null) {
-            TextView tv = (TextView)v.findViewById(R.id.currentHumidity);
+            TextView tv = (TextView) v.findViewById(R.id.currentHumidity);
             if (humidity < 1) {
                 humidity *= 100;
             }
-            tv.setText((long)humidity.doubleValue() + "%");
+            tv.setText((long) humidity.doubleValue() + "%");
         }
 
-        Double windSpeed = (Double)data.get(WeatherAttributes.WIND_SPEED);
+        Double windSpeed = (Double) data.get(WeatherAttributes.WIND_SPEED);
 
         if (windSpeed != null) {
-            TextView tv = (TextView)v.findViewById(R.id.windSpeed);
-            tv.setText((long)windSpeed.doubleValue() + "Km/h");
+            TextView tv = (TextView) v.findViewById(R.id.windSpeed);
+            tv.setText((long) windSpeed.doubleValue() + "Km/h");
         }
 
-        String windDirection = (String)data.get(WeatherAttributes.WIND_DIRECTION);
+        String windDirection = (String) data.get(WeatherAttributes.WIND_DIRECTION);
         if (windDirection != null) {
-            TextView tv = (TextView)v.findViewById(R.id.windDirection);
+            TextView tv = (TextView) v.findViewById(R.id.windDirection);
             tv.setText(windDirection);
         }
 
-        Double pop = (Double)data.get(WeatherAttributes.POP);
+        Double pop = (Double) data.get(WeatherAttributes.POP);
         if (pop != null) {
             v.findViewById(R.id.forecastedPrecipitation).setVisibility(RelativeLayout.VISIBLE);
-            TextView tv = (TextView)v.findViewById(R.id.pop);
-            tv.setText((long)(pop * 100) + "%");
+            TextView tv = (TextView) v.findViewById(R.id.pop);
+            tv.setText((long) (pop * 100) + "%");
         }
 
-        String weatherType = (String)data.get(WeatherAttributes.WEATHER_TYPE);
+        String weatherType = (String) data.get(WeatherAttributes.WEATHER_TYPE);
         Log.d(Application.TAG, "Weather Type: " + weatherType);
         String icon = WeatherTypes.getIcon(weatherType);
         int id = Application.mainActivity.getResources().getIdentifier(icon, "drawable",
                 Application.mainActivity.getPackageName());
 
-        if ( id != 0) {
-            ((ImageView)v.findViewById(R.id.forecastedWeatherType)).setImageResource(id);
+        if (id != 0) {
+            ((ImageView) v.findViewById(R.id.forecastedWeatherType)).setImageResource(id);
         }
     }
 
     public static void updateWeatherObserved(WeatherObservedData data, View v) {
         if (data.temperature != null) {
-            TextView tv = (TextView)v.findViewById(R.id.currentTemperature);
+            TextView tv = (TextView) v.findViewById(R.id.currentTemperature);
             tv.setText((long) data.temperature.doubleValue() + "ºC");
             showThunder(v, R.id.thunder_temperature);
         }
 
         if (data.humidity != null) {
-            TextView tv = (TextView)v.findViewById(R.id.currentHumidity);
+            TextView tv = (TextView) v.findViewById(R.id.currentHumidity);
             if (data.humidity < 1) {
                 data.humidity *= 100;
             }
-            tv.setText((long)data.humidity.doubleValue() + "%");
+            tv.setText((long) data.humidity.doubleValue() + "%");
             showThunder(v, R.id.thunder_humidity);
         }
     }
 
     public static void showThunder(View v, int id) {
-        final ImageView thunder = (ImageView)v.findViewById(id);
+        final ImageView thunder = (ImageView) v.findViewById(id);
         thunder.setVisibility(View.VISIBLE);
         final int interval2 = 3000; // 2 Second
         Handler handler2 = new Handler();
@@ -219,7 +205,7 @@ public class Utilities {
         parent.removeAllViews();
 
         // Now all the views are re-created
-        for (String pollutant: data.keySet()) {
+        for (String pollutant : data.keySet()) {
             LinearLayout container = new LinearLayout(Application.mainActivity);
 
             container.setOrientation(LinearLayout.HORIZONTAL);
@@ -242,7 +228,7 @@ public class Utilities {
             TextView value = new TextView(Application.mainActivity);
             LinearLayout.LayoutParams valueParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.75f);
-            valueParams.setMargins(1,1,1,1);
+            valueParams.setMargins(1, 1, 1, 1);
             value.setLayoutParams(valueParams);
             value.setPadding(3, 3, 3, 3);
             value.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -270,9 +256,8 @@ public class Utilities {
 
         if (dd == (long) dd) {
             out = String.format("%d", (long) dd);
-        }
-        else {
-            out = String.format("%s",dd);
+        } else {
+            out = String.format("%s", dd);
         }
 
         return out;
@@ -322,5 +307,15 @@ public class Utilities {
         }
 
         return df.format(distance) + " " + unit;
+    }
+
+    public static class AirQualityData {
+        public String asString;
+        public java.util.Map worstIndex;
+    }
+
+    public static class WeatherObservedData {
+        public Double temperature = null;
+        public Double humidity = null;
     }
 }

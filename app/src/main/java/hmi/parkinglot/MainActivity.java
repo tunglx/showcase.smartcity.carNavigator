@@ -13,7 +13,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -32,6 +31,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.anrwatchdog.ANRWatchDog;
 import com.here.android.mpa.common.GeoBoundingBox;
 import com.here.android.mpa.common.GeoCoordinate;
@@ -45,8 +46,8 @@ import com.here.android.mpa.common.ViewObject;
 import com.here.android.mpa.guidance.NavigationManager;
 import com.here.android.mpa.guidance.VoiceCatalog;
 import com.here.android.mpa.guidance.VoiceSkin;
-import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.AndroidXMapFragment;
+import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapGesture;
 import com.here.android.mpa.mapping.MapMarker;
 import com.here.android.mpa.mapping.MapObject;
@@ -84,7 +85,9 @@ import hmi.parkinglot.ambient.AmbientAreaRenderer;
 import hmi.parkinglot.marketplace.MarketActivity;
 import hmi.parkinglot.navigation.LocationListener;
 import hmi.parkinglot.navigation.LocationTask;
+import hmi.parkinglot.navigation.RouteActivity;
 import hmi.parkinglot.navigation.RouteData;
+import hmi.parkinglot.navigation.RouteTransfer;
 import hmi.parkinglot.navigation.VoiceNavigation;
 import hmi.parkinglot.ngsi.CityDataListener;
 import hmi.parkinglot.ngsi.CityDataRequest;
@@ -95,54 +98,36 @@ import hmi.parkinglot.parking.ParkingRenderer;
 import hmi.parkinglot.parking.ParkingRouteCalculator;
 import hmi.parkinglot.parking.ParkingRouteData;
 import hmi.parkinglot.parking.RouteCalculationListener;
-import hmi.parkinglot.navigation.RouteActivity;
-import hmi.parkinglot.navigation.RouteTransfer;
 import hmi.parkinglot.render.RenderListener;
 import hmi.parkinglot.render.SmartCityHandler;
 import hmi.parkinglot.render.SmartCityRequest;
 
 /**
- *  Main activity for the FIWARE-HERE Smart Navigator
- *
- *
+ * Main activity for the FIWARE-HERE Smart Navigator
  */
 public class MainActivity extends AppCompatActivity implements LocationListener {
+    // Oporto downtown
+    public static GeoCoordinate DEFAULT_COORDS;
+    private static String destination;
     private List<MapObject> mapObjects = Application.mapObjects;
-
     private double currentZoomLevel, defaultZoomLevel, routeZoomLevel;
-
     private boolean loopMode = false;
-
     private String state = "";
     private boolean inParkingMode = false;
     private boolean parkingFound, pendingParkingRequest = false;
-
     private int parkingRadius;
-
     private PopupMenu popupMenu;
-
     private ProgressDialog locationProgress;
-
     private LinearLayout dataContainer;
-
     // map embedded in the map fragment
     private Map map = null;
     // map fragment embedded in this activity
     private AndroidXMapFragment mapFragment = null;
-
     private ImageButton locationButton, menuButton;
     private ImageView fiwareImage, councilLogo;
-
-    // Oporto downtown
-    public static GeoCoordinate DEFAULT_COORDS;
-
     private GeoCoordinate lastKnownPosition;
-
     private NavigationManager navMan;
     private PositioningManager posMan;
-
-    private static String destination;
-
     private TextView nextRoad, currentSpeed, ETA, distance, currentRoad, nextManouverDistance;
     private ImageView turnNavigation;
 
@@ -165,141 +150,54 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private TextView scityData;
 
     private AmbientAreaData ambientAreaData = new AmbientAreaData();
-
     private boolean pendingSmartCityRequest = false;
-
-    private void onCityDataReadyProcess(java.util.Map<String, List<Entity>> data,
-                                        List<String> typesRequested, GeoPosition pos) {
-       if (data.get(Application.RESULT_SET_KEY).size() == 0) {
-           pendingSmartCityRequest = false;
-
-           if (typesRequested.indexOf(Application.AMBIENT_AREA_TYPE) != -1) {
-               Log.d(Application.TAG, "Ambient Area not found");
-               ambientAreaData.id = null;
-               ambientAreaData.polygon = null;
-               if (ambientAreaData.view != null) {
-                   map.removeMapObject(ambientAreaData.view);
-               }
-               ambientAreaData.view = null;
-           }
-           return;
-       }
-
-       if (data.get(Application.AMBIENT_AREA_TYPE) != null) {
-           Entity ent = data.get(Application.AMBIENT_AREA_TYPE).get(0);
-           Log.d(Application.TAG, "Ambient Area: " + ent.id);
-
-           if (ambientAreaData.id == null || !ent.id.equals(ambientAreaData.id)) {
-               if (ambientAreaData.view != null) {
-                   map.removeMapObject(ambientAreaData.view);
-               }
-               ambientAreaData.id = ent.id;
-               ambientAreaData.polygon = (GeoPolygon)ent.attributes.get("polygon");
-
-               AmbientAreaRenderer ambientRenderer = new AmbientAreaRenderer(map, tts, ent,
-                       findViewById(R.id.oascDataLayout), pos.getCoordinate());
-               ambientRenderer.render(new AmbientAreaRenderListener() {
-                   @Override
-                   public void onRendered(String level, MapPolygon polygonView) {
-                       pendingSmartCityRequest = false;
-                       if (polygonView != null) {
-                           ambientAreaData.view = polygonView;
-                           mapObjects.add(polygonView);
-                       }
-
-                   }
-               });
-
-           } else {
-               Log.d(Application.TAG, "Ambient Area remains the same: " + ambientAreaData.id);
-               pendingSmartCityRequest = false;
-           }
-       }
-
-       SmartCityRequest req = new SmartCityRequest();
-       req.map = map;
-       req.data = data;
-       req.tts = tts;
-       req.oascView = findViewById(R.id.oascDataLayout);
-
-       Toast.makeText(getApplicationContext(), "SmartCity data on route",
-               Toast.LENGTH_LONG).show();
-
-       SmartCityHandler sch = new SmartCityHandler();
-       sch.setListener(new RenderListener() {
-           @Override
-           public void onRendered(Object data, int num) {
-               java.util.Map<String,Object> result = (java.util.Map<String,Object>)data;
-               Entity forecast = (Entity)result.get(Application.WEATHER_FORECAST_ENTITY);
-               if( forecast != null) {
-                   Utilities.updateWeather(forecast.attributes, findViewById(R.id.oascDataLayout));
-               }
-               Utilities.WeatherObservedData weatherObs =
-                       (Utilities.WeatherObservedData)result.get(Application.WEATHER_OBSERVED_REFRESH);
-               if (weatherObs != null) {
-                   Utilities.updateWeatherObserved(weatherObs, findViewById(R.id.oascDataLayout));
-               }
-
-               pendingSmartCityRequest = false;
-           }
-       });
-
-       sch.execute(req);
-    }
-
-    public void setVoiceSkin(VoiceSkin vs) {
-        voiceSkin = vs;
-
-        if(underSimulation) {
-            if(navMan != null) {
-//                navMan.setVoiceSkin(voiceSkin);
-            }
+    // Called on UI thread
+    private final NavigationManager.PositionListener
+            m_navigationPositionListener = new NavigationManager.PositionListener() {
+        @Override
+        public void onPositionUpdated(final GeoPosition loc) {
+            updateNavigationInfo(loc);
         }
-    }
+    };
+    // Called on UI thread
+    private final NavigationManager.NavigationManagerEventListener m_navigationListener =
+            new NavigationManager.NavigationManagerEventListener() {
+                @Override
+                public void onEnded(final NavigationManager.NavigationMode mode) {
+                    // NOTE: this method is called in both cases when destination
+                    // is reached and when NavigationManager is stopped.
+                    Toast.makeText(getApplicationContext(),
+                            "Destination reached!", Toast.LENGTH_LONG).show();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                if (routeWizard != null) {
-                    routeWizard.back();
-                } else if (marketplace != null) {
-                    marketplace.back();
+                    doTerminateSimulation();
+
+                    doTransferRoute();
                 }
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
-    public void goHome() {
-        // Set the map center to Oporto center
-        goTo(map, DEFAULT_COORDS, Map.Animation.LINEAR);
-    }
+                private void doTransferRoute() {
+                    RouteTransfer transferTask = new RouteTransfer();
+                    Handler handler = new Handler() {
+                        @Override
+                        public void handleMessage(Message msg) {
+                            int result = msg.getData().getInt(Application.TRANSFER_RESULT);
+                            String text = "";
+                            if (result == 0) {
+                                text = "Route transferred OK";
+                            } else {
+                                text = "Route transfer error";
+                            }
+                            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+                        }
+                    };
 
+                    transferTask.setHandler(handler);
+                    transferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, routeData);
+                }
 
-
-    /**
-     *   Stops navigation manager.
-     *
-     */
-    private void stopNavigationManager() {
-        if (navMan == null) {
-            return;
-        }
-
-        if (navMan.getRunningState() != NavigationManager.NavigationState.IDLE) {
-            navMan.stop();
-        }
-    }
-
-    private void goTo(Map map, GeoCoordinate coordinates, Map.Animation animation) {
-        map.setCenter(coordinates, animation, defaultZoomLevel, 0, map.getMaxTilt() / 2);
-        map.setMapScheme(Map.Scheme.CARNAV_DAY);
-
-        lastKnownPosition = coordinates;
-    }
-
+                @Override
+                public void onRouteUpdated(final Route updatedRoute) {
+                }
+            };
     private MapGesture.OnGestureListener gestureListener = new MapGesture.OnGestureListener() {
         @Override
         public void onPanStart() {
@@ -376,13 +274,158 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             return false;
         }
     };
+    private Map.OnTransformListener transformListener = new Map.OnTransformListener() {
+        @Override
+        public void onMapTransformStart() {
+        }
+
+        public void onMapTransformEnd(MapState mapState) {
+            if (state.equals("zoomToRouteBB")) {
+                showRoutePlanningUI();
+                // Workaround to deal with resize problems
+                map.pan(new PointF(200, 200), new PointF(210, 150));
+            } else if (state.equals("GoingToDeparture")) {
+                startGuidance(routeData.route);
+                currentZoomLevel = mapState.getZoomLevel();
+            }
+        }
+    };
+
+    private void onCityDataReadyProcess(java.util.Map<String, List<Entity>> data,
+                                        List<String> typesRequested, GeoPosition pos) {
+        if (data.get(Application.RESULT_SET_KEY).size() == 0) {
+            pendingSmartCityRequest = false;
+
+            if (typesRequested.indexOf(Application.AMBIENT_AREA_TYPE) != -1) {
+                Log.d(Application.TAG, "Ambient Area not found");
+                ambientAreaData.id = null;
+                ambientAreaData.polygon = null;
+                if (ambientAreaData.view != null) {
+                    map.removeMapObject(ambientAreaData.view);
+                }
+                ambientAreaData.view = null;
+            }
+            return;
+        }
+
+        if (data.get(Application.AMBIENT_AREA_TYPE) != null) {
+            Entity ent = data.get(Application.AMBIENT_AREA_TYPE).get(0);
+            Log.d(Application.TAG, "Ambient Area: " + ent.id);
+
+            if (ambientAreaData.id == null || !ent.id.equals(ambientAreaData.id)) {
+                if (ambientAreaData.view != null) {
+                    map.removeMapObject(ambientAreaData.view);
+                }
+                ambientAreaData.id = ent.id;
+                ambientAreaData.polygon = (GeoPolygon) ent.attributes.get("polygon");
+
+                AmbientAreaRenderer ambientRenderer = new AmbientAreaRenderer(map, tts, ent,
+                        findViewById(R.id.oascDataLayout), pos.getCoordinate());
+                ambientRenderer.render(new AmbientAreaRenderListener() {
+                    @Override
+                    public void onRendered(String level, MapPolygon polygonView) {
+                        pendingSmartCityRequest = false;
+                        if (polygonView != null) {
+                            ambientAreaData.view = polygonView;
+                            mapObjects.add(polygonView);
+                        }
+
+                    }
+                });
+
+            } else {
+                Log.d(Application.TAG, "Ambient Area remains the same: " + ambientAreaData.id);
+                pendingSmartCityRequest = false;
+            }
+        }
+
+        SmartCityRequest req = new SmartCityRequest();
+        req.map = map;
+        req.data = data;
+        req.tts = tts;
+        req.oascView = findViewById(R.id.oascDataLayout);
+
+        Toast.makeText(getApplicationContext(), "SmartCity data on route",
+                Toast.LENGTH_LONG).show();
+
+        SmartCityHandler sch = new SmartCityHandler();
+        sch.setListener(new RenderListener() {
+            @Override
+            public void onRendered(Object data, int num) {
+                java.util.Map<String, Object> result = (java.util.Map<String, Object>) data;
+                Entity forecast = (Entity) result.get(Application.WEATHER_FORECAST_ENTITY);
+                if (forecast != null) {
+                    Utilities.updateWeather(forecast.attributes, findViewById(R.id.oascDataLayout));
+                }
+                Utilities.WeatherObservedData weatherObs =
+                        (Utilities.WeatherObservedData) result.get(Application.WEATHER_OBSERVED_REFRESH);
+                if (weatherObs != null) {
+                    Utilities.updateWeatherObserved(weatherObs, findViewById(R.id.oascDataLayout));
+                }
+
+                pendingSmartCityRequest = false;
+            }
+        });
+
+        sch.execute(req);
+    }
+
+    public void setVoiceSkin(VoiceSkin vs) {
+        voiceSkin = vs;
+
+        if (underSimulation) {
+            if (navMan != null) {
+//                navMan.setVoiceSkin(voiceSkin);
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                if (routeWizard != null) {
+                    routeWizard.back();
+                } else if (marketplace != null) {
+                    marketplace.back();
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void goHome() {
+        // Set the map center to Oporto center
+        goTo(map, DEFAULT_COORDS, Map.Animation.LINEAR);
+    }
+
+    /**
+     * Stops navigation manager.
+     */
+    private void stopNavigationManager() {
+        if (navMan == null) {
+            return;
+        }
+
+        if (navMan.getRunningState() != NavigationManager.NavigationState.IDLE) {
+            navMan.stop();
+        }
+    }
+
+    private void goTo(Map map, GeoCoordinate coordinates, Map.Animation animation) {
+        map.setCenter(coordinates, animation, defaultZoomLevel, 0, map.getMaxTilt() / 2);
+        map.setMapScheme(Map.Scheme.CARNAV_DAY);
+
+        lastKnownPosition = coordinates;
+    }
 
     private void showPopupMenu(ImageButton b) {
         popupMenu.show();//showing popup menu
     }
 
     private void addMapWidgets() {
-        FrameLayout container = (FrameLayout)findViewById(R.id.mainFrame);
+        FrameLayout container = (FrameLayout) findViewById(R.id.mainFrame);
         RelativeLayout rl2 = new RelativeLayout(this);
         RelativeLayout.LayoutParams relativeLayoutParams =
                 new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -429,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         rl2.addView(locationButton, params2);
 
         params3.leftMargin = 0;
-        params3.topMargin =  metrics.heightPixels - px2;
+        params3.topMargin = metrics.heightPixels - px2;
         rl2.addView(menuButton, params3);
 
         locationButton.setOnClickListener(new View.OnClickListener() {
@@ -511,14 +554,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         setContentView(R.layout.main);
 
-        ViewGroup rootContainer = (ViewGroup)findViewById(R.id.mainFrame);
+        ViewGroup rootContainer = (ViewGroup) findViewById(R.id.mainFrame);
 
         getLayoutInflater().inflate(R.layout.activity_main, rootContainer);
 
         addMapWidgets();
 
-        parkingData = (TextView)findViewById(R.id.parkingData);
-        parkingSign = (ImageView)findViewById(R.id.parkingSign);
+        parkingData = (TextView) findViewById(R.id.parkingData);
+        parkingSign = (ImageView) findViewById(R.id.parkingSign);
 
         popupMenu = new PopupMenu(MainActivity.this, menuButton);
         popupMenu.getMenuInflater().inflate(R.menu.menu_main, popupMenu.getMenu());
@@ -533,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     }
                 } else if (item.getItemId() == R.id.action_home) {
                     ((RelativeLayout) findViewById(R.id.routePlanningLayout)).
-                                                                setVisibility(RelativeLayout.GONE);
+                            setVisibility(RelativeLayout.GONE);
                     goHome();
                 } else if (item.getItemId() == R.id.action_pause) {
                     pauseSimulation();
@@ -556,14 +599,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
-        nextRoad = (TextView)findViewById(R.id.nextRoad);
-        currentSpeed = (TextView)findViewById(R.id.currentSpeed);
-        distance = (TextView)findViewById(R.id.distance2);
-        ETA = (TextView)findViewById(R.id.eta);
-        currentRoad = (TextView)findViewById(R.id.currentRoad);
-        nextManouverDistance = (TextView)findViewById(R.id.manouver);
+        nextRoad = (TextView) findViewById(R.id.nextRoad);
+        currentSpeed = (TextView) findViewById(R.id.currentSpeed);
+        distance = (TextView) findViewById(R.id.distance2);
+        ETA = (TextView) findViewById(R.id.eta);
+        currentRoad = (TextView) findViewById(R.id.currentRoad);
+        nextManouverDistance = (TextView) findViewById(R.id.manouver);
 
-        turnNavigation = (ImageView)findViewById(R.id.nextTurn);
+        turnNavigation = (ImageView) findViewById(R.id.nextTurn);
 
         hideNavigationUI();
 
@@ -634,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             @Override
             public void onDone(String utteranceId) {
-                if(utteranceId.equals("Entity_End")) {
+                if (utteranceId.equals("Entity_End")) {
                     Application.isSpeaking = false;
                     Application.lastTimeSpeak = new DateTime().getMillis();
                     /*
@@ -658,17 +701,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             startResult = posMan.start(PositioningManager.LocationMethod.GPS_NETWORK);
         }
 
-        if(startResult == true) {
+        if (startResult == true) {
             try {
                 LocationTask lt = new LocationTask();
                 lt.setListener(callback);
                 lt.execute(posMan);
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 Log.e("FIWARE", "Error while obtaining location");
             }
-        }
-        else {
+        } else {
             Toast.makeText(getApplicationContext(),
                     "Location services not yet available", Toast.LENGTH_LONG).show();
         }
@@ -698,7 +739,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onPause() {
         detachNavigationListeners();
-        if(posMan != null && posMan.isActive()) {
+        if (posMan != null && posMan.isActive()) {
             posMan.stop();
         }
 
@@ -713,7 +754,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onResume() {
         super.onResume();
 
-        if(posMan != null) {
+        if (posMan != null) {
             posMan.start(PositioningManager.LocationMethod.GPS_NETWORK);
         }
 
@@ -760,17 +801,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         doTerminateSimulation();
     }
 
-
     public void pauseSimulation() {
-        if(navMan != null) {
-           if (navMan.getRunningState() == NavigationManager.NavigationState.RUNNING) {
-               popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Resume Simulation");
-               navMan.pause();
-           }
-           else if (navMan.getRunningState() == NavigationManager.NavigationState.PAUSED) {
-               popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Pause Simulation");
-               navMan.resume();
-           }
+        if (navMan != null) {
+            if (navMan.getRunningState() == NavigationManager.NavigationState.RUNNING) {
+                popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Resume Simulation");
+                navMan.pause();
+            } else if (navMan.getRunningState() == NavigationManager.NavigationState.PAUSED) {
+                popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Pause Simulation");
+                navMan.resume();
+            }
         }
     }
 
@@ -798,7 +837,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         DEFAULT_COORDS = new GeoCoordinate(newDefaultCoords[0], newDefaultCoords[1]);
 
-        ViewGroup rootContainer = (ViewGroup)findViewById(R.id.mainFrame);
+        ViewGroup rootContainer = (ViewGroup) findViewById(R.id.mainFrame);
         rootContainer.removeViewAt(2);
 
         routeData = r;
@@ -808,13 +847,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void onMenuBack() {
-        ViewGroup rootContainer = (ViewGroup)findViewById(R.id.mainFrame);
+        ViewGroup rootContainer = (ViewGroup) findViewById(R.id.mainFrame);
 
         rootContainer.removeViewAt(2);
 
-        InputMethodManager mgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
     }
+
     public void onMarketplaceClosed() {
         marketplace = null;
         onMenuBack();
@@ -841,8 +881,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         Image startImg = new Image();
         try {
             startImg.setImageResource(R.drawable.start);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Cannot load image");
         }
         MapMarker startMarker = new MapMarker(start, startImg);
@@ -851,8 +890,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         Image car = new Image();
         try {
             car.setImageResource(R.drawable.car);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Cannot load image");
         }
 
@@ -860,8 +898,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         Image endImg = new Image();
         try {
             endImg.setImageResource(R.drawable.end);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Cannot load image");
         }
         MapMarker endMarker = new MapMarker(end, endImg);
@@ -877,27 +914,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mapObjects.add(endMarker);
         mapObjects.add(route);
 
-        if(loopMode) {
+        if (loopMode) {
             final int interval2 = 7000; // 7 Second
             Handler handler2 = new Handler();
             Runnable runnable2 = new Runnable() {
                 public void run() {
-                   startSimulation(null);
+                    startSimulation(null);
                 }
             };
             handler2.postDelayed(runnable2, interval2);
         }
     }
-
-
-    // Called on UI thread
-    private final NavigationManager.PositionListener
-                        m_navigationPositionListener = new NavigationManager.PositionListener() {
-        @Override
-        public void onPositionUpdated(final GeoPosition loc) {
-            updateNavigationInfo(loc);
-        }
-    };
 
     private void showParkingData(String text) {
         parkingData.setText(text);
@@ -926,7 +953,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             };
 
             reqData.types = new ArrayList<>(routeData.parkingCategory);
-            if(reqData.types.size() == 0) {
+            if (reqData.types.size() == 0) {
                 reqData.types.add(Application.PARKING_TYPE);
             }
             reqData.types.add(Application.PARKING_RESTRICTION_TYPE);
@@ -938,7 +965,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             retriever.setListener(new CityDataListener() {
                 @Override
                 public void onCityDataReady(java.util.Map<String, List<Entity>> data) {
-                    if(data.size() == 0) {
+                    if (data.size() == 0) {
                         Log.d(Application.TAG, "No parking data found.");
                         pendingParkingRequest = false;
                         parkingRadius += 100;
@@ -979,7 +1006,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     });
 
                     boolean parkingReady = false;
-                    int streetIndex = 0; int lotIndex = 0;
+                    int streetIndex = 0;
+                    int lotIndex = 0;
                     Entity targetParking = null;
                     Entity alternativeParking = null;
                     String typeUnknown = "";
@@ -1001,20 +1029,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                         // Only distances are calculated if there are both kind of parkings
                         if (streetParking != null && parkingLot != null) {
-                            distanceToStreet =  (new GeoCoordinate(streetParking.location[0],
+                            distanceToStreet = (new GeoCoordinate(streetParking.location[0],
                                     streetParking.location[1])).distanceTo(routeData.destinationCoordinates);
                             distanceToLot = (new GeoCoordinate(parkingLot.location[0],
                                     parkingLot.location[1])).distanceTo(routeData.destinationCoordinates);
-                        }
-                        else if (parkingLot != null) {
+                        } else if (parkingLot != null) {
                             distanceToLot = 0;
                             distanceToStreet = Double.MAX_VALUE;
-                        }
-                        else if (streetParking != null) {
+                        } else if (streetParking != null) {
                             distanceToStreet = 0;
                             distanceToLot = Double.MAX_VALUE;
-                        }
-                        else {
+                        } else {
                             break;
                         }
 
@@ -1026,25 +1051,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         }
 
                         // Workaround for parkings without attributes
-                        if(candidate.attributes == null) {
+                        if (candidate.attributes == null) {
                             candidate.attributes = new HashMap();
                         }
 
                         Integer availableSpotNumber =
-                                (Integer)candidate.attributes.get(ParkingAttributes.AVAILABLE_SPOTS);
+                                (Integer) candidate.attributes.get(ParkingAttributes.AVAILABLE_SPOTS);
                         Log.d("tung", "availableSpot " + availableSpotNumber);
 
                         if (availableSpotNumber != null) {
-                           if (availableSpotNumber > 1) {
-                               targetParking = candidate;
-                               parkingReady = true;
-                           }
-                            else if (availableSpotNumber == 1) {
+                            if (availableSpotNumber > 1) {
+                                targetParking = candidate;
+                                parkingReady = true;
+                            } else if (availableSpotNumber == 1) {
                                 alternativeParking = candidate;
                             }
-                        }
-                        else {
-                            typeUnknown =  candidate.type;
+                        } else {
+                            typeUnknown = candidate.type;
                             spotNumberUnknown = indexCandidate;
                         }
                     }
@@ -1056,12 +1079,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         } else if (spotNumberUnknown != -1) {
                             if (Application.STREET_PARKING_TYPE.equals(typeUnknown)) {
                                 targetParking = streetParkings.get(spotNumberUnknown);
-                            }
-                            else if (Application.PARKING_LOT_TYPE.equals(typeUnknown)) {
+                            } else if (Application.PARKING_LOT_TYPE.equals(typeUnknown)) {
                                 targetParking = parkingLots.get(spotNumberUnknown);
                             }
-                        }
-                        else {
+                        } else {
                             Log.d(Application.TAG, "No target parking found");
                             pendingParkingRequest = false;
                             parkingRadius += 100;
@@ -1126,8 +1147,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             pendingParkingRequest = true;
             Log.d(Application.TAG, "Asking parking data in a radius of: " + parkingRadius);
             retriever.execute(reqData);
-        }
-        else if (parkingRadius >= Application.MAX_PARKING_DISTANCE) {
+        } else if (parkingRadius >= Application.MAX_PARKING_DISTANCE) {
             parkingFound = true;
             parkingData.setText("No suitable parking found");
         }
@@ -1152,12 +1172,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             currentRoad.setText(nextManeuver.getRoadName());
             nextRoad.setText(nextManeuver.getNextRoadName());
             nextManouverDistance.setText(
-                                    Utilities.formatDistance(navMan.getNextManeuverDistance()));
+                    Utilities.formatDistance(navMan.getNextManeuverDistance()));
 
             int id = getResources().getIdentifier(nextManeuver.getTurn().name().toLowerCase(),
                     "drawable", getPackageName());
             // Returns 0 if not found
-            if(id != 0) {
+            if (id != 0) {
                 turnNavigation.setImageResource(id);
             }
 
@@ -1173,8 +1193,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             return;
         }
 
-        if(currentDistance <= Application.PARKING_DISTANCE) {
-            if(!inParkingMode) {
+        if (currentDistance <= Application.PARKING_DISTANCE) {
+            if (!inParkingMode) {
                 ParkingRenderer.announceParkingMode(tts);
                 parkingRadius = routeData.parkingDistance;
                 showParkingData("Searching ... ");
@@ -1184,39 +1204,38 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             inParkingMode = true;
         }
 
-        if(inParkingMode) {
+        if (inParkingMode) {
             handleParkingMode(loc.getCoordinate(), currentDistance);
         }
 
 
         // Depending on whether there is a current ambient area or not the check is different
-        int threshold =  Application.DISTANCE_FREQ_AMBIENT_AREA;
+        int threshold = Application.DISTANCE_FREQ_AMBIENT_AREA;
         if (ambientAreaData.id == null) {
             threshold = Application.AMBIENT_AREA_RADIUS - 100;
         }
 
-        if ( (previousDistanceArea  - currentDistance) > threshold) {
+        if ((previousDistanceArea - currentDistance) > threshold) {
             if (ambientAreaData.polygon == null ||
                     !ambientAreaData.polygon.contains(loc.getCoordinate())) {
 
                 Log.d(Application.TAG, "Now out of the ambient Area");
 
                 if (!pendingSmartCityRequest) {
-                    String[] types = { Application.AMBIENT_AREA_TYPE };
+                    String[] types = {Application.AMBIENT_AREA_TYPE};
                     doExecuteDataRequest(Arrays.asList(types), -1, loc, "intersects");
                 } else {
                     Log.d(Application.TAG,
                             "Not checking ambient area because pending smart city request");
                 }
-            }
-            else {
+            } else {
                 Log.d(Application.TAG, "Ambient area remains the same: " + ambientAreaData.id);
             }
             previousDistanceArea = currentDistance;
         }
 
-        if ( (currentDistance < Application.THRESHOLD_DISTANCE &&
-                (previousDistance  - currentDistance > (Application.DEFAULT_RADIUS - 100)
+        if ((currentDistance < Application.THRESHOLD_DISTANCE &&
+                (previousDistance - currentDistance > (Application.DEFAULT_RADIUS - 100)
                         || previousDistance == 0)) && !pendingSmartCityRequest) {
             previousDistance = currentDistance;
 
@@ -1284,7 +1303,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         Application.lastTimeBubble = -1;
 
         previousDistance = 0;
-        if(loopMode) {
+        if (loopMode) {
             final int interval2 = 7000; // 7 Second
             Handler handler2 = new Handler();
             Runnable runnable2 = new Runnable() {
@@ -1297,47 +1316,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
     }
 
-    // Called on UI thread
-    private final NavigationManager.NavigationManagerEventListener m_navigationListener =
-                                            new NavigationManager.NavigationManagerEventListener() {
-        @Override
-        public void onEnded(final NavigationManager.NavigationMode mode) {
-            // NOTE: this method is called in both cases when destination
-            // is reached and when NavigationManager is stopped.
-            Toast.makeText(getApplicationContext(),
-                    "Destination reached!", Toast.LENGTH_LONG).show();
-
-            doTerminateSimulation();
-
-            doTransferRoute();
-        }
-
-        private void doTransferRoute() {
-            RouteTransfer transferTask = new RouteTransfer();
-            Handler handler = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    int result = msg.getData().getInt(Application.TRANSFER_RESULT);
-                    String text = "";
-                    if(result == 0) {
-                        text = "Route transferred OK";
-                    }
-                    else {
-                        text = "Route transfer error";
-                    }
-                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
-                }
-            };
-
-            transferTask.setHandler(handler);
-            transferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, routeData);
-        }
-
-        @Override
-        public void onRouteUpdated(final Route updatedRoute) {
-        }
-    };
-
     private void showNavigationUI() {
         findViewById(R.id.routePlanningLayout).setVisibility(RelativeLayout.GONE);
 
@@ -1347,12 +1325,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, 0, 0.82f);
 
-        RelativeLayout mapLayout = (RelativeLayout)findViewById(R.id.mainMapLayout);
+        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.mainMapLayout);
         mapLayout.setLayoutParams(layoutParams1);
 
-        RelativeLayout innerMapLayout = (RelativeLayout)findViewById(R.id.innerMapLayout);
+        RelativeLayout innerMapLayout = (RelativeLayout) findViewById(R.id.innerMapLayout);
         LinearLayout.LayoutParams layoutParamsInner = new LinearLayout.LayoutParams(
-                 0, RelativeLayout.LayoutParams.MATCH_PARENT, 0.90f);
+                0, RelativeLayout.LayoutParams.MATCH_PARENT, 0.90f);
         innerMapLayout.setLayoutParams(layoutParamsInner);
 
         popupMenu.getMenu().setGroupVisible(R.id.simulationGroup, true);
@@ -1364,8 +1342,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         int id = getResources().getIdentifier(routeData.city.toLowerCase(), "drawable", getPackageName());
         if (id != 0) {
             councilLogo.setImageDrawable(getDrawable(id));
-        }
-        else {
+        } else {
             councilLogo.setImageDrawable(null);
         }
     }
@@ -1381,19 +1358,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, 0, 1.0f);
 
-        RelativeLayout mapLayout = (RelativeLayout)findViewById(R.id.mainMapLayout);
+        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.mainMapLayout);
         mapLayout.setLayoutParams(layoutParams1);
         mapLayout.requestLayout();
 
-        RelativeLayout innerMapLayout = (RelativeLayout)findViewById(R.id.innerMapLayout);
+        RelativeLayout innerMapLayout = (RelativeLayout) findViewById(R.id.innerMapLayout);
         LinearLayout.LayoutParams layoutParamsInner = new LinearLayout.LayoutParams(
                 0, RelativeLayout.LayoutParams.MATCH_PARENT, 1.0f);
         innerMapLayout.setLayoutParams(layoutParamsInner);
         findViewById(R.id.oascDataLayout).setVisibility(RelativeLayout.GONE);
         findViewById(R.id.airQualityGroup).setVisibility(RelativeLayout.GONE);
-        ((LinearLayout)findViewById(R.id.airQualityPollutants)).removeAllViews();
+        ((LinearLayout) findViewById(R.id.airQualityPollutants)).removeAllViews();
 
-        if(popupMenu != null) {
+        if (popupMenu != null) {
             popupMenu.getMenu().setGroupVisible(R.id.initialGroup, true);
             popupMenu.getMenu().setGroupVisible(R.id.simulationGroup, false);
         }
@@ -1404,12 +1381,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private void showRoutePlanningUI() {
         locationButton.setVisibility(RelativeLayout.GONE);
 
-        ((RelativeLayout)findViewById(R.id.routePlanningLayout)).setVisibility(RelativeLayout.VISIBLE);
+        ((RelativeLayout) findViewById(R.id.routePlanningLayout)).setVisibility(RelativeLayout.VISIBLE);
 
         LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT, 0, 0.88f);
 
-        RelativeLayout mapLayout = (RelativeLayout)findViewById(R.id.mainMapLayout);
+        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.mainMapLayout);
         mapLayout.setLayoutParams(layoutParams1);
         mapLayout.requestLayout();
         mapLayout.getParent().requestLayout();
@@ -1441,8 +1418,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     /**
-     *   Starts guidance simulation.
-     *
+     * Starts guidance simulation.
      */
     private void startGuidance(Route route) {
         state = "";
@@ -1467,7 +1443,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         navMan.setMapUpdateMode(NavigationManager.MapUpdateMode.POSITION_ANIMATION);
 
-        if(voiceSkin != null) {
+        if (voiceSkin != null) {
 //            navMan.setVoiceSkin(voiceSkin);
         }
 
@@ -1478,7 +1454,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         NavigationManager.Error error = navMan.simulate(route, Application.DEFAULT_SPEED);
         if (error != NavigationManager.Error.NONE) {
             Toast.makeText(getApplicationContext(),
-                     "Failed to start navigation. Error: " + error, Toast.LENGTH_LONG).show();
+                    "Failed to start navigation. Error: " + error, Toast.LENGTH_LONG).show();
             navMan.setMap(null);
             underSimulation = false;
             return;
@@ -1492,27 +1468,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 EnumSet.of(NavigationManager.NaturalGuidanceMode.JUNCTION));
 
         // We try to obtain the ambient zone and weather, first
-        String[] types = { Application.AMBIENT_AREA_TYPE, Application.WEATHER_FORECAST_TYPE };
+        String[] types = {Application.AMBIENT_AREA_TYPE, Application.WEATHER_FORECAST_TYPE};
         previousDistanceArea = routeData.route.getLength();
         executeDataRequest(Arrays.asList(types),
                 Application.AMBIENT_AREA_RADIUS, new GeoPosition(route.getStart()));
     }
-
-    private Map.OnTransformListener transformListener = new Map.OnTransformListener() {
-        @Override
-        public void onMapTransformStart() {
-        }
-
-        public void onMapTransformEnd(MapState mapState) {
-            if(state.equals("zoomToRouteBB")) {
-                showRoutePlanningUI();
-                // Workaround to deal with resize problems
-                map.pan(new PointF(200,200), new PointF(210,150));
-            }
-            else if(state.equals("GoingToDeparture")) {
-                startGuidance(routeData.route);
-                currentZoomLevel = mapState.getZoomLevel();
-            }
-        }
-    };
 }

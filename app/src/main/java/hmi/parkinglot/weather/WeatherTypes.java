@@ -4,24 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *   Weather types
- *
- *
+ * Weather types
  */
 public class WeatherTypes {
-   public static String[] VALUES = new String[] {
-           "Clear" ,
-           "Slightly cloudy",
-           "Partly Cloudy",
-           "Overcast",
-           "High clouds",
-           "Light rain",
-           "Drizzle",
-           "Heavy rain",
-           "Rain"
+    public static String[] VALUES = new String[]{
+            "Clear",
+            "Slightly cloudy",
+            "Partly Cloudy",
+            "Overcast",
+            "High clouds",
+            "Light rain",
+            "Drizzle",
+            "Heavy rain",
+            "Rain"
     };
 
-    public static String[] ICONS = new String [] {
+    public static String[] ICONS = new String[]{
             "weather_clear",
             "weather_slightly_cloudy",
             "weather_partly_cloudy",
@@ -33,7 +31,7 @@ public class WeatherTypes {
             "weather_rain"
     };
 
-    public static String[] VALUES_ES = new String[] {
+    public static String[] VALUES_ES = new String[]{
             "Despejado",
             "Poco nuboso",
             "Parcialmente nuboso",
@@ -51,7 +49,7 @@ public class WeatherTypes {
             "Nuboso con lluvia escasa"
     };
 
-    public static String[] ICONS_ES = new String [] {
+    public static String[] ICONS_ES = new String[]{
             "weather_clear",
             "weather_slightly_cloudy",
             "weather_partly_cloudy",

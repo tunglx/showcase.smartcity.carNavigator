@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.transition.Scene;
 import android.transition.TransitionManager;
 import android.view.View;
@@ -19,6 +17,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.RelativeLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import hmi.parkinglot.Application;
 import hmi.parkinglot.MainActivity;
 import hmi.parkinglot.R;
@@ -27,66 +28,10 @@ import hmi.parkinglot.R;
  * Data Marketplace View
  */
 public class MarketActivity {
-    private Context context;
-
     private static Activity activity;
-
+    private Context context;
     private WebView webView;
     private RelativeLayout mPbar;
-
-    private class SpinnerClient extends WebViewClient {
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            view.setVisibility(View.VISIBLE);
-            mPbar.setVisibility(View.GONE);
-        }
-
-        @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            mPbar.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private class WebAppTokenInterface {
-        Context context;
-
-        WebAppTokenInterface(Context c) {
-            context = c;
-        }
-
-        private SharedPreferences.Editor openPreferences() {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            return prefs.edit();
-        }
-
-        /**
-         * Save the username and the access token of the user logged in the Marketplace
-         * This method is called from the JavaScript code of the Marketplace
-         */
-        @JavascriptInterface
-        public void saveToken(String username, String token) {
-            SharedPreferences.Editor prefsEditor = openPreferences();
-            prefsEditor.putString(Application.BF_USER, username);
-            prefsEditor.putString(Application.BF_TOKEN, token);
-            prefsEditor.commit();
-
-        }
-
-        /**
-         * Remove the existing username and access token of the Marketplace user when
-         * she logs out. This method is called from the JavaScript code of the Marketplace
-         */
-        @JavascriptInterface
-        public void clearToken() {
-            SharedPreferences.Editor prefsEditor = openPreferences();
-            prefsEditor.remove(Application.BF_USER);
-            prefsEditor.remove(Application.BF_TOKEN);
-            prefsEditor.commit();
-
-            CookieManager.getInstance().removeAllCookies(null);
-            CookieManager.getInstance().flush();
-        }
-    }
 
     public MarketActivity(Context ctx) {
         context = ctx;
@@ -159,14 +104,68 @@ public class MarketActivity {
     }
 
     public void back() {
-        ((MainActivity)activity).onMarketplaceClosed();
+        ((MainActivity) activity).onMarketplaceClosed();
     }
 
     private void setupHeader() {
         Toolbar myToolbar = (Toolbar) activity.findViewById(R.id.my_toolbar);
-        ((AppCompatActivity)activity).setSupportActionBar(myToolbar);
+        ((AppCompatActivity) activity).setSupportActionBar(myToolbar);
 
-        ((AppCompatActivity)activity).getSupportActionBar().setTitle("Data Marketplace");
-        ((AppCompatActivity)activity).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) activity).getSupportActionBar().setTitle("Data Marketplace");
+        ((AppCompatActivity) activity).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private class SpinnerClient extends WebViewClient {
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            view.setVisibility(View.VISIBLE);
+            mPbar.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            mPbar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private class WebAppTokenInterface {
+        Context context;
+
+        WebAppTokenInterface(Context c) {
+            context = c;
+        }
+
+        private SharedPreferences.Editor openPreferences() {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            return prefs.edit();
+        }
+
+        /**
+         * Save the username and the access token of the user logged in the Marketplace
+         * This method is called from the JavaScript code of the Marketplace
+         */
+        @JavascriptInterface
+        public void saveToken(String username, String token) {
+            SharedPreferences.Editor prefsEditor = openPreferences();
+            prefsEditor.putString(Application.BF_USER, username);
+            prefsEditor.putString(Application.BF_TOKEN, token);
+            prefsEditor.commit();
+
+        }
+
+        /**
+         * Remove the existing username and access token of the Marketplace user when
+         * she logs out. This method is called from the JavaScript code of the Marketplace
+         */
+        @JavascriptInterface
+        public void clearToken() {
+            SharedPreferences.Editor prefsEditor = openPreferences();
+            prefsEditor.remove(Application.BF_USER);
+            prefsEditor.remove(Application.BF_TOKEN);
+            prefsEditor.commit();
+
+            CookieManager.getInstance().removeAllCookies(null);
+            CookieManager.getInstance().flush();
+        }
     }
 }
