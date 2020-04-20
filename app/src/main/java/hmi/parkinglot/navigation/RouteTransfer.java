@@ -61,6 +61,10 @@ public class RouteTransfer extends AsyncTask<RouteData, Void, Integer> {
         }
 
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        if (adapter == null) {
+            Log.d(Application.TAG, "BluetoothAdapter is null!!!");
+            return -1;
+        }
         Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
         if (pairedDevices.size() == 0) {
             Log.d(Application.TAG, "No paired devices found");

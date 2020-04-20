@@ -980,6 +980,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     List<Entity> parkingLotZones = data.get(Application.PARKING_LOT_ZONE_TYPE);
                     List<Entity> streetParkings = data.get(Application.STREET_PARKING_TYPE);
 
+                    Log.d("tung", "parkingLots " + parkingLots + " parkingLotZones " + parkingLotZones + " streetParkings " + streetParkings);
                     if (parkingLots == null) {
                         parkingLots = new ArrayList<>();
                         if (parkingLotZones != null) {
@@ -1094,9 +1095,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     if (targetParking.type.equals(Application.STREET_PARKING_TYPE)) {
                         ReverseGeocodeRequest2 req = new ReverseGeocodeRequest2(
                                 new GeoCoordinate(targetParking.location[0], targetParking.location[1]));
+                        Log.d("tung", "location0 " + targetParking.location[0] + " location1 " + targetParking.location[1]);
                         req.execute(new ResultListener<Location>() {
                             @Override
                             public void onCompleted(Location location, ErrorCode errorCode) {
+                                if (location == null) {
+                                    Log.d(Application.TAG, "Location is null " + errorCode);
+                                    return;
+                                }
                                 Address address = location.getAddress();
                                 String parkingAddress = address.getStreet();
                                 if (address.getHouseNumber() != null && address.getHouseNumber().length() > 0) {
