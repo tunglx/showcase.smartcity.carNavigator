@@ -159,7 +159,7 @@ public class RouteActivity implements LocationListener {
         setupHeader(1);
         setAutoCompleteHandlerOrigin();
 
-        SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_WORLD_READABLE);
+        SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_PRIVATE);
 
         originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Hanoi"));
         origin.setText(prefs.getString(Application.LAST_ORIGIN, Application.EMPTY_STR));
@@ -191,7 +191,7 @@ public class RouteActivity implements LocationListener {
             routeData.city = routeData.originCity;
         }
 
-        SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_WORLD_READABLE);
+        SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_PRIVATE);
 
         if (routeData.originCity.equals(prefs.getString(Application.LAST_CITY_VISITED,
                 Application.EMPTY_STR))) {
@@ -515,7 +515,7 @@ public class RouteActivity implements LocationListener {
 
     private void calculateRoute() {
         SharedPreferences.Editor edit = Application.mainActivity.
-                getPreferences(Activity.MODE_WORLD_WRITEABLE).edit();
+                getPreferences(Activity.MODE_PRIVATE).edit();
         edit.putString(Application.LAST_CITY_VISITED, routeData.city);
         edit.putString(Application.LAST_ORIGIN, routeData.origin);
         edit.putString(Application.LAST_DESTINATION, routeData.destination);
