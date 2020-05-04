@@ -415,14 +415,10 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         try {
             child = obj.getJSONObject(attr);
             out = child.getInt("value");
-            if (attr.equalsIgnoreCase("availableSpotNumber")) {
-                out = 3;
-            }
             attrs.put(mappedAttr, out);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("tung", "obj" + obj);
         Log.d("tung", "IntegerOutput: " + attr + " : " + out);
     }
 

@@ -39,8 +39,8 @@ public class Application {
     public static String AMBIENT_OBSERVED_TYPE = "AmbientObserved";
     public static String AMBIENT_AREA_TYPE = "AmbientArea";
     public static String PARKING_TYPE = "Parking";
-    public static String STREET_PARKING_TYPE = "StreetParking";
-    public static String PARKING_LOT_TYPE = "ParkingLot";
+    public static String STREET_PARKING_TYPE = "Parking";
+    public static String PARKING_LOT_TYPE = "Parking";
     public static String WEATHER_FORECAST_TYPE = "WeatherForecast";
     public static String GAS_STATION_TYPE = "GasStation";
     public static String GARAGE_TYPE = "Garage";
