@@ -61,7 +61,7 @@ import com.here.android.mpa.search.Address;
 import com.here.android.mpa.search.ErrorCode;
 import com.here.android.mpa.search.Location;
 import com.here.android.mpa.search.ResultListener;
-import com.here.android.mpa.search.ReverseGeocodeRequest2;
+import com.here.android.mpa.search.ReverseGeocodeRequest;
 
 import org.joda.time.DateTime;
 
@@ -1058,7 +1058,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                         Integer availableSpotNumber =
                                 (Integer) candidate.attributes.get(ParkingAttributes.AVAILABLE_SPOTS);
-                        Log.d("tung", "availableSpot " + availableSpotNumber);
 
                         if (availableSpotNumber != null) {
                             if (availableSpotNumber > 1) {
@@ -1092,8 +1091,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     }
 
 
-                    if (targetParking.type.equals(Application.STREET_PARKING_TYPE)) {
-                        ReverseGeocodeRequest2 req = new ReverseGeocodeRequest2(
+                    if (targetParking != null && targetParking.type.equals(Application.STREET_PARKING_TYPE)) {
+                        ReverseGeocodeRequest req = new ReverseGeocodeRequest(
                                 new GeoCoordinate(targetParking.location[0], targetParking.location[1]));
                         Log.d("tung", "location0 " + targetParking.location[0] + " location1 " + targetParking.location[1]);
                         req.execute(new ResultListener<Location>() {
