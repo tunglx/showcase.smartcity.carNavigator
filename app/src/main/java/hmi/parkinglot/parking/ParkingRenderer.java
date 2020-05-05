@@ -55,15 +55,16 @@ public class ParkingRenderer {
                 continue;
             }
 
-            if (Application.PARKING_LOT_TYPE.equals(parking.type) ||
-                    Application.PARKING_LOT_ZONE_TYPE.equals(parking.type)) {
-                renderParkingLot(ctx, map, parking);
-            } else if (parking.type.equals(Application.STREET_PARKING_TYPE)) {
+            if (parking.type.equals(Application.STREET_PARKING_TYPE)) {
                 try {
                     renderStreetParking(ctx, map, parking);
                 } catch (Throwable thr) {
                     Log.e(Application.TAG, "While rendering: " + parking.id);
+                    thr.printStackTrace();
                 }
+            } else if (Application.PARKING_LOT_TYPE.equals(parking.type) ||
+                    Application.PARKING_LOT_ZONE_TYPE.equals(parking.type)) {
+                renderParkingLot(ctx, map, parking);
             } else if (parking.type.equals(Application.PARKING_RESTRICTION_TYPE)) {
                 renderParkingRestriction(ctx, map, parking);
             }
@@ -126,6 +127,7 @@ public class ParkingRenderer {
             Application.mapObjects.add(streetPolygon);
         } catch (Throwable exc) {
             Log.e(Application.TAG, "Error while rendering parking restriction: " + exc);
+            exc.printStackTrace();
         }
 
         Image sensorImg = new Image();

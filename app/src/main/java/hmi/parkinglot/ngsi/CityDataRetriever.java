@@ -31,6 +31,7 @@ import hmi.parkinglot.weather.WeatherAttributes;
 public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String, List<Entity>>> {
     private static String SERVICE_URL = "http://165.22.62.250:1026/v2/entities";
     private CityDataListener listener;
+    private final static double INTERPOLATION_UNIT = 0.000045;
 
     protected Map<String, List<Entity>> doInBackground(CityDataRequest... request) {
         String urlString = createRequestURL(request[0]);
@@ -99,6 +100,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                     inputStream.close();
                 } catch (Throwable thr) {
                     Log.e(Application.TAG, "Error while closing stream: " + thr);
+                    thr.printStackTrace();
                 }
             }
         }
@@ -198,7 +200,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                 polygons = obj.getJSONArray("location").getJSONArray(0);
             } catch (JSONException jsoe) {
                 isArray = false;
-                jsoe.printStackTrace();
+//                jsoe.printStackTrace();
             }
             if (isArray == true) {
                 int total = polygons.length();
@@ -219,9 +221,8 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                 String locValue = loc.getString("coordinates");
                 locValue = locValue.replace("[", "");
                 locValue = locValue.replace("]", "");
-                location.add(getPolygon(locValue));
+                location.add(getPolygonFromPoint(locValue));
             }
-            Log.d("tung", "polygon location: " + location);
             attrs.put("polygon", location);
         }
     }
@@ -303,6 +304,30 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             double lon = Double.parseDouble(polygonCoords[j + 1]);
             geoPolygon.add(new GeoCoordinate(lat, lon));
         }
+
+        if (geoPolygon.size() > 0) {
+            GeoCoordinate last = geoPolygon.get(geoPolygon.size() - 1);
+            GeoCoordinate first = geoPolygon.get(0);
+
+            if (last.getLatitude() != first.getLatitude() ||
+                    last.getLongitude() != first.getLongitude()) {
+                geoPolygon.add(new GeoCoordinate(first));
+            }
+        }
+
+        return new GeoPolygon(geoPolygon);
+    }
+
+    private GeoPolygon getPolygonFromPoint(String coords) {
+        String[] polygonCoords = coords.split(",");
+        double latCenter = Double.parseDouble(polygonCoords[1]);
+        double lonCenter = Double.parseDouble(polygonCoords[0]);
+
+        List<GeoCoordinate> geoPolygon = new ArrayList<GeoCoordinate>();
+        geoPolygon.add(new GeoCoordinate((latCenter - INTERPOLATION_UNIT), (lonCenter + INTERPOLATION_UNIT)));
+        geoPolygon.add(new GeoCoordinate((latCenter + INTERPOLATION_UNIT), (lonCenter + INTERPOLATION_UNIT)));
+        geoPolygon.add(new GeoCoordinate((latCenter + INTERPOLATION_UNIT), (lonCenter - INTERPOLATION_UNIT)));
+        geoPolygon.add(new GeoCoordinate((latCenter - INTERPOLATION_UNIT), (lonCenter - INTERPOLATION_UNIT)));
 
         if (geoPolygon.size() > 0) {
             GeoCoordinate last = geoPolygon.get(geoPolygon.size() - 1);

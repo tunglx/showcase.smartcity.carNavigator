@@ -191,6 +191,7 @@ public class AmbientAreaRenderer implements CityDataListener {
             }
         } catch (Throwable thr) {
             Log.e(Application.TAG, "Error while painting ambient area: " + thr);
+            thr.printStackTrace();
         }
 
         return ambientAreaPolygon;
