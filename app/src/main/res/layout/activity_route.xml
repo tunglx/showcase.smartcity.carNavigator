@@ -1,126 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:layout_marginLeft="0dp"
-    android:layout_marginTop="0dp"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="Origin"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/light_blue"
+        android:textStyle="bold" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/my_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-        </com.google.android.material.appbar.AppBarLayout>
-
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:orientation="vertical"
+        android:weightSum="100">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/cityLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_gravity="center_horizontal|left"
+            android:layout_marginBottom="@dimen/row_margin"
+            android:text="City"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/light_blue" />
+
+        <AutoCompleteTextView
+            android:id="@+id/originCityInput"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="50dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="Origin"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/light_blue"
-            android:textStyle="bold"></TextView>
+            android:ems="10"
+            android:hint="Enter City Name"
+            android:inputType="textPostalAddress" />
 
-        <LinearLayout
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|left"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/row_margin"
+            android:text="Address"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/light_blue" />
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="100">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="90"
-                android:orientation="vertical">
+            <AutoCompleteTextView
+                android:id="@+id/editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/currentLocButton"
+                android:ems="10"
+                android:hint="Enter Address"
+                android:inputType="textPostalAddress"
+                android:tag="originAddress" />
 
-                <TextView
-                    android:id="@+id/cityLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|left"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:text="City"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/light_blue" />
+            <ImageButton
+                android:id="@+id/currentLocButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:adjustViewBounds="true"
+                android:background="@null"
+                android:cropToPadding="false"
+                android:scaleType="fitXY"
+                android:src="@drawable/current_location" />
 
-                <AutoCompleteTextView
-                    android:id="@+id/originCityInput"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:ems="10"
-                    android:hint="Enter City Name"
-                    android:inputType="textPostalAddress"></AutoCompleteTextView>
+        </RelativeLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|left"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:text="Address"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/light_blue" />
+        <Button
+            android:id="@+id/nextButton1"
+            style="@style/btnStyleShakespeare"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:drawableLeft="@drawable/next2"
+            android:text="Next" />
 
-                <AutoCompleteTextView
-                    android:id="@+id/editText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:ems="10"
-                    android:hint="Enter Address"
-                    android:inputType="textPostalAddress"
-                    android:tag="originAddress"></AutoCompleteTextView>
-
-                <Button
-                    android:id="@+id/nextButton1"
-                    style="@style/btnStyleShakespeare"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:drawableLeft="@drawable/next2"
-                    android:text="Next" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_marginTop="80dp"
-                android:layout_weight="10"
-                android:orientation="vertical">
-
-                <ImageButton
-                    android:id="@+id/currentLocButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:background="@null"
-                    android:cropToPadding="false"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/current_location2" />
-            </LinearLayout>
-        </LinearLayout>
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>

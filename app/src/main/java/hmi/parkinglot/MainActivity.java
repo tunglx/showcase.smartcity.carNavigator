@@ -425,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void addMapWidgets() {
-        FrameLayout container = (FrameLayout) findViewById(R.id.mainFrame);
+        FrameLayout container = findViewById(R.id.mainFrame);
         RelativeLayout rl2 = new RelativeLayout(this);
         RelativeLayout.LayoutParams relativeLayoutParams =
                 new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         locationButton.setAdjustViewBounds(true);
         locationButton.setCropToPadding(false);
         locationButton.setScaleType(ImageView.ScaleType.FIT_XY);
-        locationButton.setImageDrawable(getResources().getDrawable(R.drawable.current_location2));
+        locationButton.setImageDrawable(getResources().getDrawable(R.drawable.current_location));
         locationButton.setBackground(null);
 
         menuButton = new ImageButton(this);
@@ -459,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         menuButton.setBackground(null);
 
         Resources r = getResources();
-        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100,
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70,
                 r.getDisplayMetrics());
         int px2 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60,
                 r.getDisplayMetrics());
@@ -511,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         dataContainer.addView(scityData);
         // Not needed now
         // rl2.addView(dataContainer, paramsContainer);
-        dataContainer.setVisibility(RelativeLayout.GONE);
+        dataContainer.setVisibility(View.GONE);
 
         fiwareImage = new ImageView(this);
         fiwareImage.setAdjustViewBounds(true);
@@ -525,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         paramsLogo.leftMargin = 10;
         paramsLogo.topMargin = 65;
         rl2.addView(fiwareImage, paramsLogo);
-        fiwareImage.setVisibility(RelativeLayout.GONE);
+        fiwareImage.setVisibility(View.GONE);
 
         councilLogo = new ImageView(this);
         councilLogo.setAdjustViewBounds(true);
@@ -537,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         paramsLogoCouncil.leftMargin = 10;
         paramsLogoCouncil.topMargin = 110;
         rl2.addView(councilLogo, paramsLogoCouncil);
-        councilLogo.setVisibility(RelativeLayout.GONE);
+        councilLogo.setVisibility(View.GONE);
     }
 
     @Override
@@ -554,14 +554,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         setContentView(R.layout.main);
 
-        ViewGroup rootContainer = (ViewGroup) findViewById(R.id.mainFrame);
+        ViewGroup rootContainer = findViewById(R.id.mainFrame);
 
         getLayoutInflater().inflate(R.layout.activity_main, rootContainer);
 
         addMapWidgets();
 
-        parkingData = (TextView) findViewById(R.id.parkingData);
-        parkingSign = (ImageView) findViewById(R.id.parkingSign);
+        parkingData = findViewById(R.id.parkingData);
+        parkingSign = findViewById(R.id.parkingSign);
 
         popupMenu = new PopupMenu(MainActivity.this, menuButton);
         popupMenu.getMenuInflater().inflate(R.menu.menu_main, popupMenu.getMenu());
@@ -575,8 +575,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         getDirections(null);
                     }
                 } else if (item.getItemId() == R.id.action_home) {
-                    ((RelativeLayout) findViewById(R.id.routePlanningLayout)).
-                            setVisibility(RelativeLayout.GONE);
+                    findViewById(R.id.routePlanningLayout).
+                            setVisibility(View.GONE);
                     goHome();
                 } else if (item.getItemId() == R.id.action_pause) {
                     pauseSimulation();
@@ -599,14 +599,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
-        nextRoad = (TextView) findViewById(R.id.nextRoad);
-        currentSpeed = (TextView) findViewById(R.id.currentSpeed);
-        distance = (TextView) findViewById(R.id.distance2);
-        ETA = (TextView) findViewById(R.id.eta);
-        currentRoad = (TextView) findViewById(R.id.currentRoad);
-        nextManouverDistance = (TextView) findViewById(R.id.manouver);
+        nextRoad = findViewById(R.id.nextRoad);
+        currentSpeed = findViewById(R.id.currentSpeed);
+        distance = findViewById(R.id.distance2);
+        ETA = findViewById(R.id.eta);
+        currentRoad = findViewById(R.id.currentRoad);
+        nextManouverDistance = findViewById(R.id.manouver);
 
-        turnNavigation = (ImageView) findViewById(R.id.nextTurn);
+        turnNavigation = findViewById(R.id.nextTurn);
 
         hideNavigationUI();
 
@@ -837,7 +837,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         DEFAULT_COORDS = new GeoCoordinate(newDefaultCoords[0], newDefaultCoords[1]);
 
-        ViewGroup rootContainer = (ViewGroup) findViewById(R.id.mainFrame);
+        ViewGroup rootContainer = findViewById(R.id.mainFrame);
         rootContainer.removeViewAt(2);
 
         routeData = r;
@@ -847,7 +847,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void onMenuBack() {
-        ViewGroup rootContainer = (ViewGroup) findViewById(R.id.mainFrame);
+        ViewGroup rootContainer = findViewById(R.id.mainFrame);
 
         rootContainer.removeViewAt(2);
 
@@ -928,18 +928,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private void showParkingData(String text) {
         parkingData.setText(text);
-        parkingData.setVisibility(RelativeLayout.VISIBLE);
-        parkingSign.setVisibility(RelativeLayout.VISIBLE);
-        nextRoad.setLayoutParams(new LinearLayout.LayoutParams(0,
-                RelativeLayout.LayoutParams.MATCH_PARENT, 50));
+        parkingData.setVisibility(View.VISIBLE);
+        parkingSign.setVisibility(View.VISIBLE);
     }
 
     private void hideParkingData() {
         parkingData.setText("");
-        parkingData.setVisibility(RelativeLayout.GONE);
-        parkingSign.setVisibility(RelativeLayout.GONE);
-        nextRoad.setLayoutParams(new LinearLayout.LayoutParams(0,
-                RelativeLayout.LayoutParams.MATCH_PARENT, 100));
+        parkingData.setVisibility(View.GONE);
+        parkingSign.setVisibility(View.GONE);
     }
 
     private void handleParkingMode(final GeoCoordinate coord, final long distance) {
@@ -1322,27 +1318,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void showNavigationUI() {
-        findViewById(R.id.routePlanningLayout).setVisibility(RelativeLayout.GONE);
+        findViewById(R.id.routePlanningLayout).setVisibility(View.GONE);
 
-        findViewById(R.id.nextRoadLayout).setVisibility(RelativeLayout.VISIBLE);
-        findViewById(R.id.navigationLayout).setVisibility(RelativeLayout.VISIBLE);
-
-        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT, 0, 0.82f);
-
-        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.mainMapLayout);
-        mapLayout.setLayoutParams(layoutParams1);
-
-        RelativeLayout innerMapLayout = (RelativeLayout) findViewById(R.id.innerMapLayout);
-        LinearLayout.LayoutParams layoutParamsInner = new LinearLayout.LayoutParams(
-                0, RelativeLayout.LayoutParams.MATCH_PARENT, 0.90f);
-        innerMapLayout.setLayoutParams(layoutParamsInner);
+        findViewById(R.id.nextRoadLayout).setVisibility(View.VISIBLE);
+        findViewById(R.id.navigationLayout).setVisibility(View.VISIBLE);
 
         popupMenu.getMenu().setGroupVisible(R.id.simulationGroup, true);
         popupMenu.getMenu().setGroupVisible(R.id.initialGroup, false);
 
-        fiwareImage.setVisibility(RelativeLayout.VISIBLE);
-        councilLogo.setVisibility(RelativeLayout.VISIBLE);
+        fiwareImage.setVisibility(View.VISIBLE);
+        councilLogo.setVisibility(View.VISIBLE);
 
         int id = getResources().getIdentifier(routeData.city.toLowerCase(), "drawable", getPackageName());
         if (id != 0) {
@@ -1353,26 +1338,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void hideNavigationUI() {
-        locationButton.setVisibility(RelativeLayout.VISIBLE);
-        fiwareImage.setVisibility(RelativeLayout.GONE);
-        councilLogo.setVisibility(RelativeLayout.GONE);
+        locationButton.setVisibility(View.VISIBLE);
+        fiwareImage.setVisibility(View.GONE);
+        councilLogo.setVisibility(View.GONE);
 
-        findViewById(R.id.nextRoadLayout).setVisibility(RelativeLayout.GONE);
-        findViewById(R.id.navigationLayout).setVisibility(RelativeLayout.GONE);
+        findViewById(R.id.nextRoadLayout).setVisibility(View.GONE);
+        findViewById(R.id.navigationLayout).setVisibility(View.GONE);
 
-        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT, 0, 1.0f);
-
-        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.mainMapLayout);
-        mapLayout.setLayoutParams(layoutParams1);
+        LinearLayout mapLayout = findViewById(R.id.mainMapLayout);
         mapLayout.requestLayout();
 
-        RelativeLayout innerMapLayout = (RelativeLayout) findViewById(R.id.innerMapLayout);
-        LinearLayout.LayoutParams layoutParamsInner = new LinearLayout.LayoutParams(
-                0, RelativeLayout.LayoutParams.MATCH_PARENT, 1.0f);
-        innerMapLayout.setLayoutParams(layoutParamsInner);
-        findViewById(R.id.oascDataLayout).setVisibility(RelativeLayout.GONE);
-        findViewById(R.id.airQualityGroup).setVisibility(RelativeLayout.GONE);
+        findViewById(R.id.oascDataLayout).setVisibility(View.GONE);
+        findViewById(R.id.airQualityGroup).setVisibility(View.GONE);
         ((LinearLayout) findViewById(R.id.airQualityPollutants)).removeAllViews();
 
         if (popupMenu != null) {
@@ -1384,15 +1361,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void showRoutePlanningUI() {
-        locationButton.setVisibility(RelativeLayout.GONE);
+        locationButton.setVisibility(View.GONE);
 
-        ((RelativeLayout) findViewById(R.id.routePlanningLayout)).setVisibility(RelativeLayout.VISIBLE);
+        findViewById(R.id.routePlanningLayout).setVisibility(View.VISIBLE);
 
-        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT, 0, 0.88f);
-
-        RelativeLayout mapLayout = (RelativeLayout) findViewById(R.id.mainMapLayout);
-        mapLayout.setLayoutParams(layoutParams1);
+        LinearLayout mapLayout = findViewById(R.id.mainMapLayout);
         mapLayout.requestLayout();
         mapLayout.getParent().requestLayout();
 
