@@ -53,7 +53,8 @@ public class Application {
     public static String PARKING_LOT_ZONE_TYPE = "ParkingLotZone";
 
     /* 14 m/s == 50 kms/h */
-    public static int DEFAULT_SPEED = 14;
+    public static int DEFAULT_SPEED = 20;
+    public static String ACCESS_TOKEN = "";
 
 
     public static String[] POLLUTANTS = {

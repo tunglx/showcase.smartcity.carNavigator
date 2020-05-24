@@ -3,6 +3,9 @@ package hmi.parkinglot.ngsi;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPolygon;
 
@@ -11,15 +14,24 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import hmi.parkinglot.Application;
 import hmi.parkinglot.parking.ParkingAttributes;
@@ -29,28 +41,68 @@ import hmi.parkinglot.weather.WeatherAttributes;
  * Retrieves data from the city by calling FIWARE-HERE Adaptor
  */
 public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<String, List<Entity>>> {
-    private static String SERVICE_URL = "http://165.22.62.250:1026/v2/entities";
+    private static String SERVICE_URL = "http://165.22.62.250:1027/v2/entities";
+    private static String KEYROCK_URL = "http://165.22.62.250:3005";
+    private static String AUTH_KEY_BEARER = "Basic dHV0b3JpYWwtZGNrci1zaXRlLTAwMDAteHByZXNzd2ViYXBwOnR1dG9yaWFsLWRja3Itc2l0ZS0wMDAwLWNsaWVudHNlY3JldA==";
+
     private CityDataListener listener;
     private final static double INTERPOLATION_UNIT = 0.000045;
 
-    protected Map<String, List<Entity>> doInBackground(CityDataRequest... request) {
-        String urlString = createRequestURL(request[0]);
-
-        StringBuffer output = new StringBuffer("");
-        Map<String, List<Entity>> out = new HashMap<>();
-        List<Entity> resultSet = new ArrayList<>();
-
-        /*
-        Entity ent = new Entity();
-
-        ent.id = "12345";
-        ent.type = "EnvironmentEvent";
-        ent.attributes = new HashMap<String, Object>();
-        ent.location = new double[] { 41.1500167847, -8.60708522797 };
-        ent.attributes.put("temperature", new Double(22.5));
-
-        out.add(ent); */
+    private String getAuthToken(String userName, String password) {
+        StringBuffer output = new StringBuffer();
+        String token = null;
         InputStream inputStream = null;
+        DataOutputStream outputStream = null;
+
+        StringBuilder authData = new StringBuilder();
+        authData.append("grant_type=password" + "&");
+        authData.append("username=").append(userName).append("&");
+        authData.append("password=").append(password);
+
+        try {
+            URL url = new URL(KEYROCK_URL + "/oauth2/token");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Authorization", AUTH_KEY_BEARER);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.connect();
+
+            byte[] postData = authData.toString().getBytes(StandardCharsets.UTF_8);
+            outputStream = new DataOutputStream(connection.getOutputStream());
+            outputStream.write(postData);
+
+            inputStream = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = rd.readLine()) != null) {
+                output.append(line);
+            }
+            JSONObject object = new JSONObject(output.toString());
+            token = object.getString("access_token");
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return token;
+    }
+
+    private HashMap<Integer, String> getOrionData(String urlString) {
+        HashMap<Integer, String> result = new HashMap<>();
+        InputStream inputStream = null;
+        StringBuilder output = new StringBuilder("");
 
         try {
             URL url = new URL(urlString);
@@ -59,6 +111,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "FIWARE-HERE-Navigator");
+            connection.setRequestProperty("X-Auth-Token", Application.ACCESS_TOKEN);
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
             connection.connect();
@@ -70,43 +123,69 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             while ((line = rd.readLine()) != null) {
                 output.append(line);
             }
-
             Log.d(Application.TAG, "Response: " + output.toString());
-            JSONArray array = new JSONArray(output.toString());
-
-            for (int j = 0; j < array.length(); j++) {
-                Entity ent = new Entity();
-                JSONObject obj = array.getJSONObject(j);
-
-                ent.id = obj.getString("id");
-                ent.type = obj.getString("type");
-                ent.attributes = new HashMap<String, Object>();
-
-                fillLocation(obj, ent);
-                fillAttributes(obj, ent.type, ent.attributes);
-
-                if (out.get(ent.type) == null) {
-                    out.put(ent.type, new ArrayList<Entity>());
-                }
-                out.get(ent.type).add(ent);
-
-                resultSet.add(ent);
-            }
-        } catch (Exception e) {
+            result.put(connection.getResponseCode(), output.toString());
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (inputStream != null) {
-                try {
+            try {
+                if (inputStream != null) {
                     inputStream.close();
-                } catch (Throwable thr) {
-                    Log.e(Application.TAG, "Error while closing stream: " + thr);
-                    thr.printStackTrace();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    protected Map<String, List<Entity>> doInBackground(CityDataRequest... request) {
+        String urlString = createRequestURL(request[0]);
+
+        Map<String, List<Entity>> out = new HashMap<>();
+        List<Entity> resultSet = new ArrayList<>();
+
+        HashMap<Integer, String> result = getOrionData(urlString);
+        Log.d("tung", "data: " + result);
+        if (result.keySet().size() > 0 && result.keySet().toArray() != null) {
+            int responseCode = (int) result.keySet().toArray()[0];
+            if (responseCode != 200) {
+                Application.ACCESS_TOKEN = getAuthToken("alice-the-admin@test.com", "test");
+                result = getOrionData(urlString);
             }
         }
 
-        out.put(Application.RESULT_SET_KEY, resultSet);
-        Log.d("tung", "retrieved data: " + out.toString());
+        Log.d("tung", "data2: " + result);
+        if (result.keySet().size() > 0) {
+            try {
+                int responseCode = (int) result.keySet().toArray()[0];
+                JSONArray array = new JSONArray(result.get(responseCode));
+
+                for (int j = 0; j < array.length(); j++) {
+                    Entity ent = new Entity();
+                    JSONObject obj = array.getJSONObject(j);
+
+                    ent.id = obj.getString("id");
+                    ent.type = obj.getString("type");
+                    ent.attributes = new HashMap<String, Object>();
+
+                    fillLocation(obj, ent);
+                    fillAttributes(obj, ent.type, ent.attributes);
+
+                    if (out.get(ent.type) == null) {
+                        out.put(ent.type, new ArrayList<Entity>());
+                    }
+                    out.get(ent.type).add(ent);
+
+                    resultSet.add(ent);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            out.put(Application.RESULT_SET_KEY, resultSet);
+            Log.d("tung", "retrieved data: " + out.toString());
+        }
         return out;
     }
 
