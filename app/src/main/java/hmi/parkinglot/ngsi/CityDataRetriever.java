@@ -156,7 +156,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         if (result.keySet().size() > 0 && result.keySet().toArray() != null) {
             int responseCode = (int) result.keySet().toArray()[0];
             if (responseCode != 200) {
-                Application.ACCESS_TOKEN = getAuthToken("alice-the-admin@test.com", "test");
+                Application.ACCESS_TOKEN = getAuthToken("hmi_lab@gmail.com", "hmi123");
                 result = getOrionData(urlString);
             }
         }
