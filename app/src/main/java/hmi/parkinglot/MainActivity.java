@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                     doTerminateSimulation();
 
-                    doTransferRoute();
+//                    doTransferRoute();
                 }
 
                 private void doTransferRoute() {
@@ -1089,8 +1089,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                     if (targetParking != null && targetParking.type.equals(Application.STREET_PARKING_TYPE)) {
                         ReverseGeocodeRequest req = new ReverseGeocodeRequest(
-                                new GeoCoordinate(targetParking.location[0], targetParking.location[1]));
-                        Log.d("tung", "location0 " + targetParking.location[0] + " location1 " + targetParking.location[1]);
+                                new GeoCoordinate(targetParking.location[1], targetParking.location[0]));
+                        Log.d("tung", "location0 " + targetParking.location[1] + " location1 " + targetParking.location[0]);
                         req.execute(new ResultListener<Location>() {
                             @Override
                             public void onCompleted(Location location, ErrorCode errorCode) {
@@ -1120,8 +1120,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         showParkingData(parkingName);
                     }
 
-                    routeData.parkingCoordinates = new GeoCoordinate(targetParking.location[0],
-                            targetParking.location[1]);
+                    routeData.parkingCoordinates = new GeoCoordinate(targetParking.location[1],
+                            targetParking.location[0]);
 
                     ParkingRouteCalculator parkingRoute = new ParkingRouteCalculator();
                     ParkingRouteData prd = new ParkingRouteData();

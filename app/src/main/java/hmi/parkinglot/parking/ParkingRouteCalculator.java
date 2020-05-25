@@ -45,7 +45,7 @@ public class ParkingRouteCalculator extends AsyncTask<ParkingRouteData, Integer,
             public void onProgress(int i) {
             }
         });
-        return new Integer(0);
+        return 0;
     }
 
     public void setListener(RouteCalculationListener list) {
