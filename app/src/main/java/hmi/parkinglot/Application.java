@@ -52,7 +52,7 @@ public class Application {
 
     public static String PARKING_LOT_ZONE_TYPE = "ParkingLotZone";
 
-    /* 14 m/s == 50 kms/h */
+    /* 20 m/s == 72 km/h */
     public static int DEFAULT_SPEED = 20;
     public static String ACCESS_TOKEN = "";
 

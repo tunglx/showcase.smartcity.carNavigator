@@ -1,10 +1,8 @@
 package hmi.parkinglot.ngsi;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPolygon;
@@ -18,20 +16,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import hmi.parkinglot.Application;
 import hmi.parkinglot.parking.ParkingAttributes;
@@ -53,6 +45,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         String token = null;
         InputStream inputStream = null;
         DataOutputStream outputStream = null;
+        BufferedReader rd = null;
 
         StringBuilder authData = new StringBuilder();
         authData.append("grant_type=password" + "&");
@@ -74,7 +67,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             outputStream.write(postData);
 
             inputStream = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+            rd = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = rd.readLine()) != null) {
                 output.append(line);
@@ -86,6 +79,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             e.printStackTrace();
         } finally {
             try {
+                if (rd != null) {
+                    rd.close();
+                }
                 if (inputStream != null) {
                     inputStream.close();
                 }
@@ -103,6 +99,12 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         HashMap<Integer, String> result = new HashMap<>();
         InputStream inputStream = null;
         StringBuilder output = new StringBuilder("");
+        BufferedReader rd = null;
+
+        if (TextUtils.isEmpty(Application.ACCESS_TOKEN)) {
+            result.put(401, "");
+            return result;
+        }
 
         try {
             URL url = new URL(urlString);
@@ -112,13 +114,14 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "FIWARE-HERE-Navigator");
             connection.setRequestProperty("X-Auth-Token", Application.ACCESS_TOKEN);
+            connection.setRequestProperty("Connection", "close");
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
             connection.connect();
 
             inputStream = connection.getInputStream();
 
-            BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+            rd = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = rd.readLine()) != null) {
                 output.append(line);
@@ -127,8 +130,12 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             result.put(connection.getResponseCode(), output.toString());
         } catch (IOException e) {
             e.printStackTrace();
+            result.put(401, "");
         } finally {
             try {
+                if (rd != null) {
+                    rd.close();
+                }
                 if (inputStream != null) {
                     inputStream.close();
                 }
@@ -146,7 +153,6 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
         List<Entity> resultSet = new ArrayList<>();
 
         HashMap<Integer, String> result = getOrionData(urlString);
-        Log.d("tung", "data: " + result);
         if (result.keySet().size() > 0 && result.keySet().toArray() != null) {
             int responseCode = (int) result.keySet().toArray()[0];
             if (responseCode != 200) {
@@ -155,7 +161,6 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             }
         }
 
-        Log.d("tung", "data2: " + result);
         if (result.keySet().size() > 0) {
             try {
                 int responseCode = (int) result.keySet().toArray()[0];
@@ -182,10 +187,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            out.put(Application.RESULT_SET_KEY, resultSet);
-            Log.d("tung", "retrieved data: " + out.toString());
         }
+        out.put(Application.RESULT_SET_KEY, resultSet);
+        Log.d("tung", "retrieved data: " + out.toString());
         return out;
     }
 
