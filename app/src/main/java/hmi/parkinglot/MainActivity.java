@@ -9,7 +9,6 @@ import android.graphics.PointF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -87,7 +86,6 @@ import hmi.parkinglot.navigation.LocationListener;
 import hmi.parkinglot.navigation.LocationTask;
 import hmi.parkinglot.navigation.RouteActivity;
 import hmi.parkinglot.navigation.RouteData;
-import hmi.parkinglot.navigation.RouteTransfer;
 import hmi.parkinglot.navigation.VoiceNavigation;
 import hmi.parkinglot.ngsi.CityDataListener;
 import hmi.parkinglot.ngsi.CityDataRequest;
@@ -168,30 +166,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     // is reached and when NavigationManager is stopped.
                     Toast.makeText(getApplicationContext(),
                             "Destination reached!", Toast.LENGTH_LONG).show();
-
                     doTerminateSimulation();
-
-//                    doTransferRoute();
-                }
-
-                private void doTransferRoute() {
-                    RouteTransfer transferTask = new RouteTransfer();
-                    Handler handler = new Handler() {
-                        @Override
-                        public void handleMessage(Message msg) {
-                            int result = msg.getData().getInt(Application.TRANSFER_RESULT);
-                            String text = "";
-                            if (result == 0) {
-                                text = "Route transferred OK";
-                            } else {
-                                text = "Route transfer error";
-                            }
-                            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
-                        }
-                    };
-
-                    transferTask.setHandler(handler);
-                    transferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, routeData);
                 }
 
                 @Override

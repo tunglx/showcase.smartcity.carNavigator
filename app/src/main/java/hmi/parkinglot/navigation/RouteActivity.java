@@ -143,14 +143,14 @@ public class RouteActivity implements LocationListener {
     }
 
     public void start() {
-        ViewGroup rootContainer = (ViewGroup) activity.findViewById(R.id.mainFrame);
+        ViewGroup rootContainer = activity.findViewById(R.id.mainFrame);
         activity.getLayoutInflater().inflate(R.layout.route, rootContainer);
 
         goToOriginStep();
     }
 
     private void goToOriginStep() {
-        ViewGroup routeContainer = (ViewGroup) activity.findViewById(R.id.frameRoute);
+        ViewGroup routeContainer = activity.findViewById(R.id.frameRoute);
         Scene scene1 = Scene.getSceneForLayout(routeContainer, R.layout.activity_route, activity);
 
         TransitionManager.go(scene1);
@@ -177,7 +177,7 @@ public class RouteActivity implements LocationListener {
     }
 
     private void goToDestinationStep() {
-        ViewGroup routeContainer = (ViewGroup) activity.findViewById(R.id.frameRoute);
+        ViewGroup routeContainer = activity.findViewById(R.id.frameRoute);
         Scene scene1 = Scene.getSceneForLayout(routeContainer, R.layout.activity_route_2, activity);
         TransitionManager.go(scene1);
 
@@ -201,33 +201,16 @@ public class RouteActivity implements LocationListener {
     }
 
     private void goToParkingStep() {
-        ViewGroup routeContainer = (ViewGroup) activity.findViewById(R.id.frameRoute);
+        ViewGroup routeContainer = activity.findViewById(R.id.frameRoute);
         Scene scene1 = Scene.getSceneForLayout(routeContainer, R.layout.activity_route_3, activity);
         TransitionManager.go(scene1);
-
-        Spinner sp = (Spinner) activity.findViewById(R.id.parkingDistance);
-        int position = (routeData.parkingDistance - 400) / 100;
-        sp.setSelection(position);
-
-        CheckBox cb = (CheckBox) activity.findViewById(R.id.chkIndoor);
-        CheckBox cb2 = (CheckBox) activity.findViewById(R.id.chkOutdoor);
-
-        if (routeData.parkingCategory.contains("StreetParking")) {
-            cb2.setChecked(true);
-        }
-
-        if (routeData.parkingCategory.contains("ParkingLot")) {
-            cb.setChecked(true);
-        }
-
-        setupAutoComplateHandlerParking();
 
         setupNextEventHandler();
         setupHeader(3);
     }
 
     private void setupHeader(int step) {
-        Toolbar myToolbar = (Toolbar) activity.findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = activity.findViewById(R.id.my_toolbar);
         ((AppCompatActivity) activity).setSupportActionBar(myToolbar);
 
         ((AppCompatActivity) activity).getSupportActionBar().setTitle("Route Planning " + step + "/3");
@@ -235,7 +218,7 @@ public class RouteActivity implements LocationListener {
     }
 
     private void setupNextEventHandler() {
-        nextButton = ((Button) activity.findViewById(R.id.nextButton1));
+        nextButton = activity.findViewById(R.id.nextButton1);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -244,27 +227,9 @@ public class RouteActivity implements LocationListener {
         });
     }
 
-    private void setupAutoComplateHandlerParking() {
-        AutoCompleteTextView vehicle = (AutoCompleteTextView) activity.findViewById(R.id.vehicleInput);
-
-        String[] vehicles = activity.getResources().getStringArray(R.array.Vehicles);
-        ArrayAdapter adapter = new ArrayAdapter<String>(activity,
-                android.R.layout.simple_list_item_1, vehicles);
-        vehicle.setAdapter(adapter);
-
-        vehicle.addTextChangedListener(new MyTextWatcher(vehicle, adapter));
-
-        vehicle.setCompoundDrawables(y, null, null, null);
-        vehicle.setOnTouchListener(new MyTouchListener(vehicle));
-
-        vehicle.setOnItemClickListener(itemClickListener);
-
-        vehicle.setText(routeData.vehicle);
-    }
-
     private void setAutoCompleteHandlerOrigin() {
-        origin = (AutoCompleteTextView) activity.findViewById(R.id.editText);
-        originCity = (AutoCompleteTextView) activity.findViewById(R.id.originCityInput);
+        origin = activity.findViewById(R.id.editText);
+        originCity = activity.findViewById(R.id.originCityInput);
 
         originAdapter = new ArrayAdapter<String>(activity,
                 android.R.layout.simple_dropdown_item_1line, optionList1);
@@ -293,7 +258,7 @@ public class RouteActivity implements LocationListener {
 
         originCity.setOnItemClickListener(itemClickListener);
 
-        ((ImageButton) activity.findViewById(R.id.currentLocButton)).setOnClickListener(new View.OnClickListener() {
+        activity.findViewById(R.id.currentLocButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 calculateCurrentposition();
@@ -304,7 +269,7 @@ public class RouteActivity implements LocationListener {
     }
 
     private void setAutoCompleteHandlerDestination() {
-        destination = (AutoCompleteTextView) activity.findViewById(R.id.editText2);
+        destination = activity.findViewById(R.id.editText2);
         destinationAdapter = new ArrayAdapter<String>(activity,
                 android.R.layout.simple_dropdown_item_1line, optionList2);
         destination.setAdapter(destinationAdapter);
@@ -315,7 +280,7 @@ public class RouteActivity implements LocationListener {
 
         destination.setOnItemClickListener(itemClickListener);
 
-        city = (AutoCompleteTextView) activity.findViewById(R.id.cityInput);
+        city = activity.findViewById(R.id.cityInput);
         ArrayAdapter cityAdapter = new ArrayAdapter<String>(activity,
                 android.R.layout.simple_dropdown_item_1line, cityList);
         city.setAdapter(cityAdapter);
@@ -376,24 +341,8 @@ public class RouteActivity implements LocationListener {
 
     private void fillParkingPreferences() {
         routeData.parkingCategory.clear();
-
-        Spinner sp = (Spinner) activity.findViewById(R.id.parkingDistance);
-        int selectedVal = activity.getResources().
-                getIntArray(R.array.distance_array_values)[sp.getSelectedItemPosition()];
-
-        routeData.parkingDistance = selectedVal;
-
-        CheckBox cb = (CheckBox) activity.findViewById(R.id.chkIndoor);
-        if (cb.isChecked()) {
-            routeData.parkingCategory.add("ParkingLot");
-        }
-        CheckBox cb2 = (CheckBox) activity.findViewById(R.id.chkOutdoor);
-        if (cb2.isChecked()) {
-            routeData.parkingCategory.add("StreetParking");
-        }
-
-        AutoCompleteTextView vehicle = (AutoCompleteTextView) activity.findViewById(R.id.vehicleInput);
-        routeData.vehicle = vehicle.getText().toString();
+        routeData.parkingDistance = 500;
+        routeData.vehicle = "Car";
     }
 
     private void calculateCurrentposition() {
@@ -418,8 +367,6 @@ public class RouteActivity implements LocationListener {
             });
         }
     }
-
-    ;
 
     private void doCalculateRoute(GeoCoordinate start, GeoCoordinate end) {
         // Initialize RouteManager
@@ -715,5 +662,4 @@ public class RouteActivity implements LocationListener {
         }
     }
 
-    ;
 }
