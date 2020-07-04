@@ -667,6 +667,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             }
         });
+        findViewById(R.id.txt_can_not_login).bringToFront();
     }
 
     public void calculateCurrentPosition(LocationListener callback) {
