@@ -91,6 +91,7 @@ import hmi.parkinglot.ngsi.CityDataListener;
 import hmi.parkinglot.ngsi.CityDataRequest;
 import hmi.parkinglot.ngsi.CityDataRetriever;
 import hmi.parkinglot.ngsi.Entity;
+import hmi.parkinglot.ngsi.LoginFinishListener;
 import hmi.parkinglot.parking.ParkingAttributes;
 import hmi.parkinglot.parking.ParkingRenderer;
 import hmi.parkinglot.parking.ParkingRouteCalculator;
@@ -667,7 +668,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             }
         });
-        findViewById(R.id.txt_can_not_login).bringToFront();
     }
 
     public void calculateCurrentPosition(LocationListener callback) {
@@ -1248,6 +1248,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             public void onCityDataReady(java.util.Map<String, List<Entity>> data) {
                 onCityDataReadyProcess(data, types, loc);
             }
+        });
+        retriever.setLoginFinishListener(new LoginFinishListener() {
+            @Override
+            public void onLoginFinished(final boolean isLoggedIn) {
+                Log.d("tung", "isLoggedIn " + isLoggedIn);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isLoggedIn) {
+                            findViewById(R.id.txt_can_not_login).setVisibility(View.GONE);
+                        } else {
+                            findViewById(R.id.txt_can_not_login).setVisibility(View.VISIBLE);
+                            findViewById(R.id.txt_can_not_login).bringToFront();
+                        }
+                    }
+                });
+             }
         });
 
         reqData.token = getUserToken();

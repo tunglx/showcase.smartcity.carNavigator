@@ -38,6 +38,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
     private static String AUTH_KEY_BEARER = "Basic dHV0b3JpYWwtZGNrci1zaXRlLTAwMDAteHByZXNzd2ViYXBwOnR1dG9yaWFsLWRja3Itc2l0ZS0wMDAwLWNsaWVudHNlY3JldA==";
 
     private CityDataListener listener;
+    private LoginFinishListener loginFinishListener;
     private final static double INTERPOLATION_UNIT = 0.000045;
 
     private String getAuthToken(String userName, String password) {
@@ -159,6 +160,10 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
                 Application.ACCESS_TOKEN = getAuthToken("hmi_lab@gmail.com", "hmi123");
                 result = getOrionData(urlString);
             }
+        }
+
+        if (loginFinishListener != null) {
+            loginFinishListener.onLoginFinished(!TextUtils.isEmpty(Application.ACCESS_TOKEN));
         }
 
         if (result.keySet().size() > 0) {
@@ -549,6 +554,9 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
     public void setListener(CityDataListener listener) {
         this.listener = listener;
+    }
+    public void setLoginFinishListener(LoginFinishListener loginFinishListener) {
+        this.loginFinishListener = loginFinishListener;
     }
 
     protected void onPostExecute(Map<String, List<Entity>> data) {
