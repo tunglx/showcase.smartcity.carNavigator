@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -780,10 +781,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void pauseSimulation() {
         if (navMan != null) {
             if (navMan.getRunningState() == NavigationManager.NavigationState.RUNNING) {
-                popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Resume Simulation");
+                popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Resume Route");
                 navMan.pause();
             } else if (navMan.getRunningState() == NavigationManager.NavigationState.PAUSED) {
-                popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Pause Simulation");
+                popupMenu.getMenu().findItem(R.id.action_pause).setTitle("Pause Route");
                 navMan.resume();
             }
         }
@@ -1079,7 +1080,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                 if (address.getHouseNumber() != null && address.getHouseNumber().length() > 0) {
                                     parkingAddress += ", " + address.getHouseNumber();
                                 }
-
+                                if (TextUtils.isEmpty(parkingAddress)) {
+                                    parkingAddress = "Hanoi National University";
+                                }
+                                Log.d("tung", "parking name: " + parkingAddress);
                                 ParkingRenderer.announceParking(tts, parkingAddress);
                                 routeData.parkingAddress = parkingAddress;
                                 showParkingData(parkingAddress);

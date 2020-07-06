@@ -13,7 +13,7 @@
         <item
             android:id="@+id/action_simulate"
             android:orderInCategory="100"
-            android:title="Simulate Route"
+            android:title="Start Route"
             app:showAsAction="never" />
     </group>
 
@@ -21,13 +21,13 @@
         <item
             android:id="@+id/action_pause"
             android:orderInCategory="400"
-            android:title="Pause Simulation"
+            android:title="Pause Route"
             app:showAsAction="never" />
 
         <item
             android:id="@+id/action_terminate"
             android:orderInCategory="500"
-            android:title="Terminate Simulation"
+            android:title="Stop Route"
             app:showAsAction="never" />
     </group>
 
@@ -35,7 +35,7 @@
         <item
             android:id="@+id/action_restart"
             android:orderInCategory="600"
-            android:title="Restart Simulation"
+            android:title="Restart Route"
             app:showAsAction="never" />
     </group>
 </menu>
