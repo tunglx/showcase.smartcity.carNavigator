@@ -603,11 +603,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     // Oporto downtown
                     String city =
                             getPreferences(MODE_PRIVATE).getString(
-                                    Application.LAST_CITY_VISITED, "Hanoi");
+                                    Application.LAST_CITY_VISITED, Application.CURRENT_CITY);
                     Log.d("tung", "city " + city + " cityCoord " + RouteActivity.cityCoords);
                     double[] coords = RouteActivity.cityCoords.get(city);
                     if (coords == null) {
-                        coords = RouteActivity.cityCoords.get("Hanoi");
+                        coords = RouteActivity.cityCoords.get(Application.CURRENT_CITY);
                     }
                     DEFAULT_COORDS = new GeoCoordinate(coords[0], coords[1]);
 
@@ -810,7 +810,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onRouteReady(RouteData r) {
         double[] newDefaultCoords = RouteActivity.cityCoords.get(r.city);
         if (newDefaultCoords == null) {
-            newDefaultCoords = RouteActivity.cityCoords.get("Hanoi");
+            newDefaultCoords = RouteActivity.cityCoords.get(Application.CURRENT_CITY);
         }
         DEFAULT_COORDS = new GeoCoordinate(newDefaultCoords[0], newDefaultCoords[1]);
 

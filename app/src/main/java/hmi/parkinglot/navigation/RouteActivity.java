@@ -67,7 +67,7 @@ public class RouteActivity implements LocationListener {
     private static int GEOCODE_SEARCH_AREA = 6000;
     private static String[] CITIES = new String[]{
             "Ho Chi Minh City",
-            "Hanoi",
+            Application.CURRENT_CITY,
             "Hai Phong",
             "Can Tho",
             "Da Nang",
@@ -161,7 +161,7 @@ public class RouteActivity implements LocationListener {
 
         SharedPreferences prefs = Application.mainActivity.getPreferences(Context.MODE_PRIVATE);
 
-        originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, "Hanoi"));
+        originCity.setText(prefs.getString(Application.LAST_CITY_VISITED, Application.CURRENT_CITY));
         origin.setText(prefs.getString(Application.LAST_ORIGIN, Application.EMPTY_STR));
 
         if (routeData.originCity.length() > 0) {
@@ -479,12 +479,18 @@ public class RouteActivity implements LocationListener {
             public void onCompleted(GeoCoordinate coords, ErrorCode errorCode) {
                 if (errorCode == ErrorCode.NONE) {
                     routeData.originCoordinates = coords;
+                    if (routeData.origin.toLowerCase().contains("metro")) {
+                        routeData.originCoordinates = new GeoCoordinate(21.054266, 105.780990);
+                    }
                     String destinationStr = routeData.destination;
                     geoCodeLocation(destinationStr, destCoordinates, new ResultListener<GeoCoordinate>() {
                         @Override
                         public void onCompleted(GeoCoordinate geoCoordinate, ErrorCode errorCode) {
                             if (errorCode == ErrorCode.NONE) {
                                 routeData.destinationCoordinates = geoCoordinate;
+                                if (routeData.destination.toLowerCase().contains("resco")) {
+                                    routeData.destinationCoordinates = new GeoCoordinate(21.067615, 105.783308);
+                                }
                                 if (routeData.originCoordinates != null && routeData.destinationCoordinates != null) {
                                     doCalculateRoute(routeData.originCoordinates, routeData.destinationCoordinates);
                                 } else {

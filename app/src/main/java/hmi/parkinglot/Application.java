@@ -102,6 +102,7 @@ public class Application {
     public static String LAST_CITY_VISITED = "Last_City";
     public static String LAST_ORIGIN = "Last_Origin";
     public static String LAST_DESTINATION = "Last_Destination";
+    public static String CURRENT_CITY = "Hà Nội";
 
     public static String MARKET_URL = "";
 
