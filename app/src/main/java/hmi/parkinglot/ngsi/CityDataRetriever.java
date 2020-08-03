@@ -112,6 +112,7 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
 
             Log.d(Application.TAG, "URL: " + urlString);
 
+            long startTime = System.currentTimeMillis();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "FIWARE-HERE-Navigator");
             connection.setRequestProperty("X-Auth-Token", Application.ACCESS_TOKEN);
@@ -121,6 +122,8 @@ public class CityDataRetriever extends AsyncTask<CityDataRequest, Integer, Map<S
             connection.connect();
 
             inputStream = connection.getInputStream();
+            long endTime = System.currentTimeMillis();
+            Log.d("TEST-REQUEST", "request time: " + (endTime - startTime));
 
             rd = new BufferedReader(new InputStreamReader(inputStream));
             String line;
