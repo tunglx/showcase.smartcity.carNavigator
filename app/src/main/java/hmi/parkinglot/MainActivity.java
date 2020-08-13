@@ -1081,7 +1081,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                                     parkingAddress += ", " + address.getHouseNumber();
                                 }
                                 if (TextUtils.isEmpty(parkingAddress)) {
-                                    parkingAddress = "Resco urban area";
+                                    parkingAddress = "Khu đô thị Resco";
                                 }
                                 Log.d("tung", "parking name: " + parkingAddress);
                                 ParkingRenderer.announceParking(tts, parkingAddress);
