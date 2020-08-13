@@ -13,7 +13,7 @@
         android:background="#FF4D4D"
         android:gravity="center"
         android:padding="5dp"
-        android:text="Login Failed!\nCan not retrieve parking data"
+        android:text="@string/login_failed_can_not_retrieve_parking_data"
         android:textColor="@color/white"
         android:textSize="25sp"
         android:visibility="gone" />
@@ -98,7 +98,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dip"
                 android:background="@color/blue_title"
-                android:text="Today"
+                android:text="@string/today"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
@@ -537,7 +537,7 @@
                     android:layout_weight="0.7"
                     android:background="@color/colorPrimaryDark"
                     android:gravity="center"
-                    android:text="Distance"
+                    android:text="@string/distance"
                     android:textColor="@color/white"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -575,7 +575,7 @@
                     android:layout_weight="0.7"
                     android:background="@color/colorPrimaryDark"
                     android:gravity="center"
-                    android:text="Arrival"
+                    android:text="@string/arrival"
                     android:textColor="@color/white"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -599,7 +599,7 @@
                 android:layout_margin="3dp"
                 android:gravity="center"
                 android:onClick="startSimulation"
-                android:text="Done"
+                android:text="@string/done"
                 android:textStyle="bold" />
         </LinearLayout>
     </RelativeLayout>

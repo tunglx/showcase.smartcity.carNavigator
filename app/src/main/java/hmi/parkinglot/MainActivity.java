@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     // NOTE: this method is called in both cases when destination
                     // is reached and when NavigationManager is stopped.
                     Toast.makeText(getApplicationContext(),
-                            "Destination reached!", Toast.LENGTH_LONG).show();
+                            R.string.destination_reached, Toast.LENGTH_LONG).show();
                     doTerminateSimulation();
                 }
 
@@ -322,8 +322,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         req.tts = tts;
         req.oascView = findViewById(R.id.oascDataLayout);
 
-        Toast.makeText(getApplicationContext(), "SmartCity data on route",
-                Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(), "SmartCity data on route",
+//                Toast.LENGTH_LONG).show();
 
         SmartCityHandler sch = new SmartCityHandler();
         sch.setListener(new RenderListener() {
@@ -456,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onClick(View v) {
                 locationProgress = ProgressDialog.show(Application.mainActivity, getString(R.string.app_name),
-                        "Obtaining current location", true);
+                        getString(R.string.obtaining_current_location), true);
                 calculateCurrentPosition(Application.mainActivity);
             }
         });
@@ -1130,7 +1130,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             retriever.execute(reqData);
         } else if (parkingRadius >= Application.MAX_PARKING_DISTANCE) {
             parkingFound = true;
-            parkingData.setText("No suitable parking found");
+            parkingData.setText(R.string.no_suitable_parking_found);
         }
     }
 
@@ -1178,7 +1178,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             if (!inParkingMode) {
                 ParkingRenderer.announceParkingMode(tts);
                 parkingRadius = routeData.parkingDistance;
-                showParkingData("Searching ... ");
+                showParkingData(getString(R.string.searching));
                 double zoom = map.getZoomLevel();
                 map.setZoomLevel(zoom + 0.7);
             }

@@ -213,7 +213,7 @@ public class RouteActivity implements LocationListener {
         Toolbar myToolbar = activity.findViewById(R.id.my_toolbar);
         ((AppCompatActivity) activity).setSupportActionBar(myToolbar);
 
-        ((AppCompatActivity) activity).getSupportActionBar().setTitle("Route Planning " + step + "/3");
+        ((AppCompatActivity) activity).getSupportActionBar().setTitle(context.getString(R.string.route_planning) + " " + step + "/3");
         ((AppCompatActivity) activity).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -333,8 +333,8 @@ public class RouteActivity implements LocationListener {
         } else if (currentStep.equals("Parking")) {
             fillParkingPreferences();
 
-            progress = ProgressDialog.show(activity, "Route Calculation",
-                    "We are calculating a route", true);
+            progress = ProgressDialog.show(activity, context.getString(R.string.route_calculation),
+                    context.getString(R.string.we_are_calculation_a_route), true);
             calculateRoute();
         }
     }

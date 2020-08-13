@@ -25,7 +25,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="Destination"
+        android:text="@string/destination"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/light_blue"
         android:textStyle="bold" />
@@ -38,7 +38,7 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/row_margin"
-        android:text="City"
+        android:text="@string/city"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/light_blue" />
 
@@ -50,7 +50,7 @@
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:ems="10"
-        android:hint="Enter City Name"
+        android:hint="@string/enter_city_name"
         android:inputType="textPostalAddress" />
 
     <TextView
@@ -60,7 +60,7 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/row_margin"
-        android:text="Address"
+        android:text="@string/address"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/light_blue" />
 
@@ -72,7 +72,7 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:ems="10"
-        android:hint="Enter Address"
+        android:hint="@string/enter_address"
         android:inputType="textPostalAddress"
         android:tag="destAddress" />
 
@@ -85,6 +85,6 @@
         android:layout_marginTop="20dp"
         android:drawableLeft="@drawable/next2"
         android:onClick="calculateRoute"
-        android:text="Next" />
+        android:text="@string/next" />
 
 </LinearLayout>
