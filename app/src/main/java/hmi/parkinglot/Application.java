@@ -110,4 +110,6 @@ public class Application {
     public static String BF_USER = "bf_user";
 
     public static String EMPTY_STR = "";
+    public static String USER_NAME = "hmi_lab@gmail.com";
+    public static String PASSWORD = "hmi123";
 }
